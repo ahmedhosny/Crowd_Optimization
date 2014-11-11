@@ -1,12 +1,14 @@
 //
 //Variables
 //
-var nelx = 7;
-var nely = 7;
+var nelx = 3;
+var nely = 3;
 var penal = 3;
 var myDensity2Array = [];
 var F = math.zeros(2*(nelx+1)*(nely+1) , 1);
 var U = math.zeros(2*(nely+1)*(nelx+1) , 1);
+var myEDOFList = [];
+var myDispColorArray = [];
 //
 //
 //
@@ -23,12 +25,17 @@ function elementDensityFunc(myCanvas,nelx,nely){
             var myBlack = 0;
             var imageData = context.getImageData(i,  j, Xdiv, Ydiv);
             var data = imageData.data;
-            //test RED only
+            //test ALL
             for (var k = 0; k < data.length; k += 4) {
-                if (data[k] == 0){
+                if (data[i] != 255 && data[i+1] != 255 && data[i+2] != 255){
                     myBlack += 1;
                 }
             }
+            //Check for singularity
+            if(myBlack==0){
+                myBlack = 0.001;
+            }
+            //
             var myDensity = myBlack/interval;
             myDensityArray.push(myDensity);
             //
@@ -74,6 +81,13 @@ function mySolver(nelx,nely,x,penal,KE,U){
             var n1 = (nely+1)*(i-1)+j;
             var n2 = (nely+1)* i   +j;
             var edof = [2*n1-2, 2*n1-1, 2*n2-2, 2*n2-1, 2*n2, 2*n2+1, 2*n1, 2*n1+1];
+            //myEDOFList
+            myTempVec = [];
+            for (var z = 0 ; z < edof.length ; z++){
+                myTempVec.push(edof[z])
+            }
+            myEDOFList.push(myTempVec)
+            //
             var myKSub = []; //8x8 matrix subset from K
             for (var k = 0 ; k < edof.length ; k++){
                 var myLine = [];
@@ -155,13 +169,96 @@ function myBCFunc (nelx,nely,F){
     //cantileverd beam
     //replace value in F
     var myIndex = math.size(F)._data[0];
-    F = math.subset(F, math.index(myIndex-1, 0), -1);
+    F = math.subset(F, math.index(myIndex-1, 0), -1);/////////F/////////
     //supports (simple arrays)
     var fixedDOF = _.range((nelx +1) * 2);
     var allDOF = _.range(2*(nely+1)*(nelx+1));
     //diff big - small
     var freeDOF = _.difference(allDOF,fixedDOF);
     return [F,fixedDOF,freeDOF];
+}
+//
+//
+//
+function myECoorFunc(nelx,nely,myCanvas){
+    //
+    var elements = nelx*nely;
+    var Xdiv = myCanvas.width / nelx ;
+    var Ydiv = myCanvas.height / nely ;
+    //
+    myCoorList = [];
+    //
+    for (var i = 0 ; i < nelx ; i++){
+        for (var j = 0 ; j < nely ; j++){
+            myArray = [i*Xdiv,j*Ydiv];
+            myCoorList.push(myArray);
+        }
+    }
+return myCoorList;
+}
+//
+//
+//
+function myBFunc (csi,eta,eCoor){
+
+/*
+function [B] = myBFunction( csi, eta, myElementsCoor);
+        N1csi = 1+eta;
+        N2csi = -eta-1 ;
+        N3csi = eta-1;
+        N4csi = 1-eta;
+        N1eta = 1+csi;
+        N2eta = 1-csi;
+        N3eta = csi-1;
+        N4eta = -csi-1;
+        temp = (1/4) * [N1csi, N2csi, N3csi, N4csi;...
+                        N1eta, N2eta, N3eta, N4eta];
+        Je = temp * myElementsCoor;
+        Btemp = Je\temp;
+        B = [Btemp(1,1), 0 ,Btemp(1,2), 0 , Btemp(1,3), 0 , Btemp(1,4) , 0;...
+            0 , Btemp(2,1) , 0 , Btemp(2,2) , 0 , Btemp(2,3) , 0 , Btemp(2,4);...
+            Btemp(2,1), Btemp(1,1), Btemp(2,2), Btemp(1,2), Btemp(2,3) , Btemp(1,3) , Btemp(2,4) , Btemp(1,4)];
+    end 
+*/
+
+}
+//
+//
+//
+function myStrainFunc (myDisp){
+    //get D matrix
+
+    //set gauss_x
+    //gauss_x = [-1*(1/sqrt(3)) ,  1/sqrt(3)] ;
+
+    //declare element strain and stress
+    //myElementStrain=zeros(3,1,m);
+    //myElementStress=zeros(3,1,m);
+
+    //loop through elements
+    //get element disp from myDisp
+    //myEDOFList
+
+    //double loop to get csi and eta
+    //for  k = 1:2
+               // csi = gauss_x(1,k);
+               // for j = 1:2
+                  //  eta = gauss_x(1,j);
+
+    //get B 
+    //[B] = myBFunction( csi, eta, myElementsCoor(:,:,i));
+
+    //get element strain
+    //myElementStrain (:,:,i) = myElementStrain (:,:,i) + B * de';
+
+    //exit loop
+
+    //get average of element strain
+    //myElementStrain (:,:,i) = myElementStrain (:,:,i) / 4;
+
+    //get stress
+    //myElementStress (:,:,i) = D * myElementStrain (:,:,i);
+
 }
 //
 //
@@ -177,12 +274,18 @@ function myCalculateFunction (){
         var x = elementDensityFunc(myCanvas,nelx,nely);
         // solver
         var myDisp = mySolver(nelx,nely,x,penal,myKE,U);
-        console.log(myDisp);
+        var myColorArray = VisDispFunc(myDisp);
+        console.log(myColorArray);
         //get time again
         var myTime2 = new Date().getTime();
         var myDuration = (myTime2 - myTime1)/1000;
-        console.log("Time to compute " , myDuration , "seconds");  
+        console.log("Time to compute " , myDuration , "seconds");
         
+
+        //console.log(myEDOFList);  
+        //myCoorList  = myECoorFunc(nelx,nely,myCanvas);
+
+
     }
 }
 

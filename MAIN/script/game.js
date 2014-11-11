@@ -17,10 +17,18 @@ function myGameFunction() {
         width: 315,
         height: 315,
         isDrawingMode: true
-         });
+    });
+
 
     //Brush size
     myCanvas.freeDrawingBrush.width = 20;
+
+    //
+    //var ctx1 = myCanvas.getContext('2d');
+    //var ctx2 = myDispCanvas.getContext('2d');
+    //ctx2.blendOnto(ctx1,'screen');
+    //
+
 
     //////////
     //Buttons
@@ -47,6 +55,42 @@ function myGameFunction() {
     myShowFEB.onmouseup = function (e){
         drawFEFunc(myCanvas,nelx,nely,false);
     }
+    //Show Displacement
+    myShowDisp = document.getElementsByName("myShowDisp")[0];
+    myShowDisp.onmousedown = function(e){
+        myDispCanvas = createCanvas(nelx+1, nely+1);
+        myDispCTX = myDispCanvas.getContext('2d');
+        myDispCTX.globalCompositeOperation = 'multiply';
+        //loop through canvas pixels
+        for (var s = 0 ; s < nelx+1 ; s++){
+            for (var t = 0 ; t < nely+1 ; t++){
+            myDispCTX.fillStyle = myDispColorArray[s][t];
+            myDispCTX.fillRect( s, t, 1, 1 );
+            }
+        }
+        //create a temp context to put myDispCanvas onto (make it bigger)
+        myDispCanvasT = createCanvas(myCanvas.width, myCanvas.height);
+        myDispCTXT = myDispCanvasT.getContext('2d');
+        myDispCTXT.drawImage(myDispCanvas,0,0,myCanvas.width,myCanvas.height);
+        //now create another temp context so we dont touch the original one
+
+        //now get original context
+        var context = myCanvas.getContext('2d');
+        //var context2 = context1;
+        //blend
+        myDispCTXT.blendOnto(context,'screen');
+        //context1.drawImage(myDispCanvas,0,0,myCanvas.width,myCanvas.height);
+        var imageData = context.getImageData(0, 0, myCanvas.width, myCanvas.height);
+        var data = imageData.data;
+        console.log(data);
+
+
+    }
+    myShowDisp.onmouseup = function (e){
+        //
+    }
+
+
 
     //Pixel specific
     var myDataLength = myCanvas.width * myCanvas.height;
@@ -111,7 +155,7 @@ function myGameFunction() {
        //else if zero or posotive i.e. we are adding material
        else if ( val > 0 ) {
             myBucketValue -= val;
-       }
+       }conte
        myBucket.value = myBucketValue.toFixed(2);
     } 
     function getMatFunc(myCanvas){
@@ -121,9 +165,9 @@ function myGameFunction() {
         var context = myCanvas.getContext('2d'),
         imageData = context.getImageData(0, 0, myCanvas.width, myCanvas.height),
         data = imageData.data;
-        //test RED only
+        //test ALL 
         for (var i = 0; i < data.length; i += 4) {
-            if (data[i] == 0){
+            if (data[i] != 255 && data[i+1] != 255 && data[i+2] != 255){
                 myBlack += 1;
             }
         }
@@ -160,4 +204,12 @@ function myGameFunction() {
             }
         }
     }
+}
+
+//Create off DOM canvas
+function createCanvas(width, height) {
+    var canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    return canvas;
 }

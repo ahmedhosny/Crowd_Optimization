@@ -1,6 +1,6 @@
 body {
     text-align: center;
-    font-family: Courier, Monaco, monospace;
+    font-family: Courier, Monaco, monospace
 }
 #myTitleBar {
     padding-top:50px;
@@ -12,7 +12,7 @@ body {
     margin-right : auto;
     margin-bottom: 5px;
     font-weight: bold;
-    font-style: italic;
+    font-style: italic
 }
 #myMainBody {
     position:relative;
@@ -22,21 +22,21 @@ body {
     height : 400px;
     margin-left : auto;
     margin-right : auto;
-    font-size :18px;
+    font-size :18px
 }
 #myUserInfo {
     padding-top:130px;
-    line-height: 30px;
+    line-height: 30px
 }
 #myStatusBar {
     background-color: #d3d3d3;
     width: 100%;
     text-align: left;
     position: relative;
-    top: 380px;
+    top: 380px
 }
 #myGoBack {
-    text-align: right;
+    text-align: right
 }
 #myTopScores {
     position:relative;
@@ -45,7 +45,7 @@ body {
     height: 380px;
     margin-top:-240px;
     -webkit-transition: width 1s, -webkit-transform 1s;
-    transition: width 1s, transform 1s;
+    transition: width 1s, transform 1s
 }
 #myChallengeBoard {
     position:relative;
@@ -55,7 +55,7 @@ body {
     margin-top: 0px;
     padding-top:0px;
     padding-bottom:50px;
-    text-align:center;
+    text-align:center
 }
 .inner {
     background-color: #ffffff;
@@ -64,15 +64,15 @@ body {
     display: inline-block;
     text-align:center;
     margin-right:10px;
-    margin-top:50px;
+    margin-top:50px
 }
 #myGame {
     background-color: #ffffff;
     margin: auto;
-    width : 300px;
-    height : 300px;
+    width : 315px;
+    height : 315px;
     float: left;
-    position: relative;
+    position: absolute
 }
 #myTools {
     position:relative;
@@ -86,18 +86,20 @@ body {
     -webkit-transition: width 0.5s, -webkit-transform 0.5s;
     transition: width 0.5s, transform 0.5s;
     text-align : center;
-    padding-top : 10px;
+    padding-top : 10px
 }
 #myParamCounter {
-    width=100%;
+    width=100%
 }
 .draggable {
-    cursor: move;
+    cursor: move
 }
 
 #myCanvas {
-    position:relative;
+    position:absolute;
+    top: 30px;
+    left: 100px;
     width : 315px;
     height : 315px;
-    background-color: #00bbaa;
 }
+
