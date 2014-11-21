@@ -1,4 +1,6 @@
 
+
+
 function myGameFunction() {
     var myGame = document.createElement("div");
     myGame.id = "myGame";
@@ -12,13 +14,17 @@ function myGameFunction() {
     // var mySVG = document.createElement("svg");
     // mySVG.id = "mySVG";
     // myGame.appendChild(mySVG);
-    myGame.innerHTML = "<canvas id='myCanvas'> </canvas>";
+    myGame.innerHTML = "  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myCanvas'> </canvas> <canvas id='myNodeCanvas'> </canvas>"; 
     var myCanvas = window.__canvas = new fabric.Canvas("myCanvas",{
-        width: 315,
-        height: 315,
+        width: 306,
+        height: 306,
         isDrawingMode: true
     });
 
+
+    //Visualization canvases
+    var myDispCanvas = document.getElementById("myDispCanvas");
+    var myVMCanvas = document.getElementById("myVMCanvas");
 
     //Brush size
     myCanvas.freeDrawingBrush.width = 20;
@@ -30,9 +36,9 @@ function myGameFunction() {
     //
 
 
-    //////////
+    //////////////////////////////////////////////
     //Buttons
-    //////////
+    /////////////////////////////////////////////
     //Delete button - white
     var myDeleteB = document.getElementsByName("myDeleteB")[0];
     myDeleteB.onmousedown = function(e){
@@ -45,7 +51,7 @@ function myGameFunction() {
     myAddB.onmousedown = function(e){
         myAddFlag = true;
         myDeleteFlag = false;
-        myCanvas.freeDrawingBrush.color = "#000000";  
+        myCanvas.freeDrawingBrush.color = "#000000"; 
     }
     //show elements
     myShowFEB = document.getElementsByName("myShowFEB")[0];
@@ -55,40 +61,110 @@ function myGameFunction() {
     myShowFEB.onmouseup = function (e){
         drawFEFunc(myCanvas,nelx,nely,false);
     }
+    ///////////////////////////////////////////////////////////////////
     //Show Displacement
+    ///////////////////////////////////////////////////////////////////
+    //Get Button
     myShowDisp = document.getElementsByName("myShowDisp")[0];
     myShowDisp.onmousedown = function(e){
-        myDispCanvas = createCanvas(nelx+1, nely+1);
-        myDispCTX = myDispCanvas.getContext('2d');
-        myDispCTX.globalCompositeOperation = 'multiply';
+        //
+        //DRAW CANVAS
+        //
+        //Create temp canvas (off-screen/small)
+        myDispCanvasT = createCanvas(nelx+1, nely+1);
+        myDispCTXT = myDispCanvasT.getContext('2d');
         //loop through canvas pixels
         for (var s = 0 ; s < nelx+1 ; s++){
             for (var t = 0 ; t < nely+1 ; t++){
-            myDispCTX.fillStyle = myDispColorArray[s][t];
-            myDispCTX.fillRect( s, t, 1, 1 );
+            myDispCTXT.fillStyle = myDispColorArray[s][t];
+            myDispCTXT.fillRect( s, t, 1, 1 );
             }
         }
-        //create a temp context to put myDispCanvas onto (make it bigger)
-        myDispCanvasT = createCanvas(myCanvas.width, myCanvas.height);
-        myDispCTXT = myDispCanvasT.getContext('2d');
-        myDispCTXT.drawImage(myDispCanvas,0,0,myCanvas.width,myCanvas.height);
-        //now create another temp context so we dont touch the original one
-
-        //now get original context
-        var context = myCanvas.getContext('2d');
-        //var context2 = context1;
-        //blend
-        myDispCTXT.blendOnto(context,'screen');
-        //context1.drawImage(myDispCanvas,0,0,myCanvas.width,myCanvas.height);
-        var imageData = context.getImageData(0, 0, myCanvas.width, myCanvas.height);
-        var data = imageData.data;
-        console.log(data);
-
-
+        //Get real canvas
+        
+        myDispCanvas.width = myCanvas.width;
+        myDispCanvas.height = myCanvas.height;
+        myDispCTX= myDispCanvas.getContext('2d');
+        //Put small canvas on real big canvas
+        myDispCTX.drawImage(myDispCanvasT,0,0,myCanvas.width,myCanvas.height);
+        //
+        //Set all black pixels in myCanvas to zero alpha chanel
+        //
+        var bool = false;
+        alphaFunc(myCanvas,bool);
+        //
+        //Make sure myVMCanvas is transparent and this is opaque
+        //
+        myVMCanvas.globalAlpha = 0.5;
+        myDispCTX.globalAlpha = 1;
     }
     myShowDisp.onmouseup = function (e){
         //
     }
+
+    /////////////////////////////////////////////////////////////////////////
+    //Show VM
+    /////////////////////////////////////////////////////////////////////////
+    //Get Button
+    myShowVM = document.getElementsByName("myShowVM")[0];
+    myShowVM.onmousedown = function(e){
+        //
+        //DRAW CANVAS
+        //
+        //Create temp canvas (off-screen/small)
+        myVMCanvasT = createCanvas(nelx, nely);
+        myVMCTXT = myVMCanvasT .getContext('2d');
+        //loop through canvas pixels
+        for (var s = 0 ; s < nelx; s++){
+            for (var t = 0 ; t < nely ; t++){
+            myVMCTXT.fillStyle = myVMColorArray[s][t];
+            myVMCTXT.fillRect( s, t, 1, 1 );
+            }
+        }
+        //Get real canvas
+        myVMCanvas.width = myCanvas.width;
+        myVMCanvas.height = myCanvas.height;
+        myVMCTX= myVMCanvas.getContext('2d');
+        //Put small canvas on real big canvas
+        myVMCTX.drawImage(myVMCanvasT,0,0,myCanvas.width,myCanvas.height);
+        //
+        //Set all black pixels in myCanvas to zero alpha chanel
+        //
+        var bool = false;
+        alphaFunc(myCanvas,bool);
+        //
+        //Make sure myVMCanvas is opaque and this is transparent
+        //
+        myVMCanvas.opacity = 1;
+        myDispCanvas.opacity = 0;
+    }
+    myShowVM.onmouseup = function (e){
+        //
+    }
+
+    /////////////////////////////////////////////////////////////////////////
+    //Show Nodes
+    /////////////////////////////////////////////////////////////////////////
+
+    var myShowNB = document.getElementsByName("myShowNB")[0];
+    var myNodeCanvas = document.getElementById("myNodeCanvas");
+
+    myNodeCanvas.width = 0;
+    myNodeCanvas.height = 0;
+
+
+    myShowNB.onmousedown = function (e){
+        myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp);
+    }
+    myShowNB.onmouseup = function(e){
+        myNodeCanvas.width = 0;
+        myNodeCanvas.height = 0;
+        //myNodeCanvas.width = myNodeCanvas.width; 
+    }
+
+
+
+
 
 
 
@@ -155,9 +231,10 @@ function myGameFunction() {
        //else if zero or posotive i.e. we are adding material
        else if ( val > 0 ) {
             myBucketValue -= val;
-       }conte
+       }
        myBucket.value = myBucketValue.toFixed(2);
     } 
+
     function getMatFunc(myCanvas){
         var myBlack = 0;
         var myMaterialPercentage = 0;
@@ -165,9 +242,9 @@ function myGameFunction() {
         var context = myCanvas.getContext('2d'),
         imageData = context.getImageData(0, 0, myCanvas.width, myCanvas.height),
         data = imageData.data;
-        //test ALL 
+        //test RED 
         for (var i = 0; i < data.length; i += 4) {
-            if (data[i] != 255 && data[i+1] != 255 && data[i+2] != 255){
+            if (data[i] != 255){
                 myBlack += 1;
             }
         }
@@ -175,6 +252,7 @@ function myGameFunction() {
         myMatPer.value = myMaterialPercentage.toFixed(2);
         myNewPer[0] = myMaterialPercentage;
     }
+    
     function makeLine(coords) {
         return new fabric.Line(coords, {
             fill: 'pink',
@@ -212,4 +290,25 @@ function createCanvas(width, height) {
     canvas.width = width;
     canvas.height = height;
     return canvas;
+}
+//Turn alpha on (change opacity of all black pixels to transparent)
+function alphaFunc(myCanvas,bool){
+    //get Pixel data  
+    var context = myCanvas.getContext('2d'),
+    imageData = context.getImageData(0, 0, myCanvas.width, myCanvas.height),
+    data = imageData.data;
+    //test RED 
+    for (var i = 0; i < data.length; i += 4) {
+        if (data[i] != 255){
+            if (bool){ //ie image is on
+                data[i+3] = 255;
+            }
+            else{ //ie image is off
+                data[i+3] = 0;
+            }
+        }
+    }
+    //now draw the context using the adjusted values
+    context.putImageData(imageData,0,0);
+    console.log("alpha changed");
 }

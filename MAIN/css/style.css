@@ -57,22 +57,22 @@ body {
     padding-bottom:50px;
     text-align:center
 }
+
 .inner {
     background-color: #ffffff;
     width: 140px;
     height: 100px;
     display: inline-block;
     text-align:center;
-    margin-right:10px;
-    margin-top:50px
+    margin-right: 10px;
+    margin-top: 50px
 }
 #myGame {
+    position: relative;
     background-color: #ffffff;
     margin: auto;
-    width : 315px;
-    height : 315px;
-    float: left;
-    position: absolute
+    width : 400px;
+    height : 400px;
 }
 #myTools {
     position:relative;
@@ -94,12 +94,23 @@ body {
 .draggable {
     cursor: move
 }
-
 #myCanvas {
     position:absolute;
-    top: 30px;
-    left: 100px;
-    width : 315px;
-    height : 315px;
+    top:0;
+    left:0
 }
-
+#myDispCanvas{
+    position: absolute;
+    top:0;
+    left:0
+}
+#myVMCanvas{
+    position: absolute;
+    top:0;
+    left:0
+}
+#myNodeCanvas{
+    position: absolute;
+    top:0;
+    left:0
+}

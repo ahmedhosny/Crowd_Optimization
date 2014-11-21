@@ -80,13 +80,13 @@
     //
     //myTools String
     //
-    var myToolsString = " <input name='myCalculateB' type='submit' value='Calculate'><br><input name='myAddB' type='submit' value='Add'> <br><input name='myDeleteB' type='submit' value='Delete'> <br> <input name='myButton' type='submit' value='Undo'><br> <input name='myButton' type='submit' value='Redo'> <br> <input name='myShowFEB' type='submit' value='show Elements'> <br><input name='myShowDisp' type='submit' value='show Disp'> <br><inputname='myButton' type='submit' value='Save'> <br> <input name='myButton'type='submit' value='Stats'> <br> <input name='myButton' type='submit' value='Settings'> <br> <input name='myButton' type='submit' value='Help'> <br>  Material %: <br> <input type='text' name='myMatPer' size='12'> <br> Bucket <input type='text' name='myBucket' size='12'> <br> Prompt <input type='text' name='myPrompt' size='20'>";
+    var myToolsString = " <input name='myCalculateB' type='submit' value='Calculate'><br><input name='myAddB' type='submit' value='Add'> <br><input name='myDeleteB' type='submit' value='Delete'> <br> <input name='myButton' type='submit' value='Undo'><br> <input name='myButton' type='submit' value='Redo'> <br> <input name='myShowFEB' type='submit' value='show Elements'> <br> <input name='myShowNB' type='submit' value='show Nodes'> <br><input name='myShowDisp' type='submit' value='show Disp'><br><input name='myShowVM' type='submit' value='show VM Stress'> <br><inputname='myButton' type='submit' value='Save'> <br> <input name='myButton'type='submit' value='Stats'> <br> <input name='myButton' type='submit' value='Settings'> <br> <input name='myButton' type='submit' value='Help'> <br>  Material %: <br> <input type='text' name='myMatPer' size='12'> <br> Bucket <input type='text' name='myBucket' size='12'> <br> Prompt <input type='text' name='myPrompt' size='20'>";
     //for SVG
     //<svg width='100' height='100'><circle cx='50' cy='50' r='40' stroke='green' stroke-width='4' fill='yellow' /></svg>
     //
     //myGame
     //
- 
+
  
     //
     //Create myTopScores
