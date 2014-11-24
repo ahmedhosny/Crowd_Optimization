@@ -1,8 +1,13 @@
 //
 //Variables
 //
-var nelx = 3;
-var nely = 3;
+///////////
+var div = 7;
+var myNewCanvas;
+var nelx = div;
+var nely = div;
+var myDensityMatrix = math.zeros(nelx, nely);
+/////////// 
 var penal = 3;
 var E = 0.5, nu = 0.3;
 var myDensity2Array = [];
@@ -16,40 +21,24 @@ var myDisp = [];
 //
 var myElementVMStress = [];
 var myVMColorArray = [];
+var myPrompt;
 //
 //
 //
-function elementDensityFunc(myCanvas,nelx,nely){
-    var Xdiv = myCanvas.width / nelx;
-    var Ydiv = myCanvas.height / nely;
-    //get Pixel data  
-    var myDensityArray = [];
-    var context = myCanvas.getContext('2d');
-    var interval = Xdiv * Ydiv;
-    for (var j = 0 ; j < myCanvas.height  ; j += Ydiv){
-        for (var i = 0 ; i < myCanvas.width ; i += Xdiv){
-            //
-            var myBlack = 0;
-            var imageData = context.getImageData(i,  j, Xdiv, Ydiv);
-            var data = imageData.data;
-            //test RED
-            for (var k = 0; k < data.length; k += 4) {
-                if (data[i] != 255){
-                    myBlack += 1;
-                }
+function elementDensityFunc(myDensityMatrix,div){
+
+    //loop through matrix and check if value is zero
+    for (var i = 0 ; i < div  ; i++){
+        for (var j = 0 ; j < div ; j++){
+            //Get Value
+            var myDensity =  math.subset(myDensityMatrix, math.index(i, j));
+            //check is zero
+            if (myDensity == 0){
+                myDensityMatrix = math.subset(myDensityMatrix, math.index(i, j), 0.001); 
             }
-            //Check for singularity
-            if(myBlack==0){
-                myBlack = 0.001;
-            }
-            //
-            var myDensity = myBlack/interval;
-            myDensityArray.push(myDensity);
-            //
         }
     }
-    while(myDensityArray.length) myDensity2Array.push(myDensityArray.splice(0,nelx));
-    return myDensity2Array;
+    return myDensityMatrix;
 }
 //
 //
@@ -76,11 +65,7 @@ return myK;
 function mySolver(nelx,nely,x,penal,KE,U){
     //initaie K,F,U
     var K = math.zeros(2*(nelx+1)*(nely+1) , 2*(nelx+1)*(nely+1));
-    //Covert x into math.matrix
-    var xM = math.matrix(x);
-    //console.log(U);
-    //console.log(K);
-    //console.log(F);
+
     //add x and penal to K
     for(var i = 1 ; i <= nelx ; i++){
         for(var j = 1 ; j <= nely ; j++){
@@ -106,8 +91,8 @@ function mySolver(nelx,nely,x,penal,KE,U){
             //   
             //now we can use myKsub  
             var myKsubM = math.matrix(myKSub);
-            //get xM at current element
-            var temp1 = math.subset(xM, math.index(i-1, j-1)); 
+            //get x at current element
+            var temp1 = math.subset(x, math.index(i-1, j-1)); 
             //raise that to the penal
             var temp2 = math.pow(temp1,penal);
             //multiply that to KE
@@ -198,8 +183,35 @@ function myBCFunc (nelx,nely,F){
     //cantileverd beam
     //replace value in F
     var myIndex = math.size(F)._data[0];
-    F = math.subset(F, math.index(myIndex-1, 0), -1);/////////F/////////
-    console.log(F._data);
+    /*
+    F = math.subset(F, math.index(myIndex-1, 0), -1);
+    F = math.subset(F, math.index(myIndex-3, 0), -1);
+    F = math.subset(F, math.index(myIndex-5, 0), -1);
+    F = math.subset(F, math.index(myIndex-7, 0), -1);
+    F = math.subset(F, math.index(myIndex-9, 0), -1);
+    F = math.subset(F, math.index(myIndex-11, 0), -1);
+    F = math.subset(F, math.index(myIndex-13, 0), -1);
+    F = math.subset(F, math.index(myIndex-15, 0), -1);
+    */
+    /////////F/////////
+    
+    
+    F = math.subset(F, math.index(myIndex-1, 0), -1);
+    F = math.subset(F, math.index(myIndex-3, 0), -1);
+    F = math.subset(F, math.index(myIndex-5, 0), -1);
+    F = math.subset(F, math.index(myIndex-7, 0), -1);
+    F = math.subset(F, math.index(myIndex-9, 0), -1);
+    F = math.subset(F, math.index(myIndex-11, 0), -1);
+    F = math.subset(F, math.index(myIndex-13, 0), -1);
+    F = math.subset(F, math.index(myIndex-15, 0), -1);
+
+
+
+
+
+
+    /////////F/////////
+    
     //supports (simple arrays)
     var fixedDOF = _.range((nelx +1) * 2);
     var allDOF = _.range(2*(nely+1)*(nelx+1));
@@ -210,11 +222,11 @@ function myBCFunc (nelx,nely,F){
 //
 //Get 4x2 matrix per element
 //
-function myECoorFunc(nelx,nely,myCanvas){
+function myECoorFunc(nelx,nely,myNewCanvas){
     //
     //var nodes = (nelx+1)*(nely+1);
-    var Xdiv = myCanvas.width / nelx ;
-    var Ydiv = myCanvas.height / nely ;
+    var Xdiv = myNewCanvas.width / nelx ;
+    var Ydiv = myNewCanvas.height / nely ;
     //
     var myNCoorList = [];
     //
@@ -271,7 +283,7 @@ function myBFunc(csi,eta,myECoor){
 //
 //
 //
-function myStrainFunc (){ //myDisp
+function myStrainFunc (){ //deosn't return anything for now
     //get D matrix
     var temp = math.matrix([[1,nu,0],[nu,1,0],[0,0, (1-nu)/2]]);
     var D = math.multiply(E/(1-(math.pow(nu,2))) ,temp);
@@ -336,39 +348,57 @@ function myStrainFunc (){ //myDisp
 
     }
     
-    //console.log("VM");
-    //console.log(myElementVMStress);
-    return myStrain;
+    //return myStrain;
 }
 //
 //
 //
 function myCalculateFunction (){
     var myCalculateB = document.getElementsByName("myCalculateB")[0]; 
+
+    myCalculateB.onmouseover = function (e){
+        NProgress.configure({ parent: '#myTitleBar' });
+        //NProgress.inc(0.3);
+        NProgress.configure({ minimum: 0.2});
+        var delay=50;
+        setTimeout(function(){
+            NProgress.start(); 
+            NProgress.inc(0.1);
+            myPrompt.value = "Calculating";
+        },delay);   
+    }
+
+
+
     myCalculateB.onmousedown  = function (e){
+
         //Get time
         var myTime1 = new Date().getTime();
         // get KE
         var myKE = KE(E,nu);
         //  get x
-        var x = elementDensityFunc(myCanvas,nelx,nely);
+        var x = elementDensityFunc(myDensityMatrix,div);
+        console.log("this is x");
+        console.log(x._data);
+        
         // solver
+        myDisp = [];
         myDisp = mySolver(nelx,nely,x,penal,myKE,U);
         console.log(myDisp);
         //populate myDispColorArray 
+        
         VisDispFunc(myDisp);
-        ////////////////////////////////////////////////
-        //WIP
-        var myECoor = myECoorFunc(nelx,nely,myCanvas)
-        var B = myBFunc(5,6,myECoor[0]);
-        //console.log(B);
-        var SIKO = myStrainFunc();
-        //console.log(SIKO);
-        //populate myVMColorArray
+        //This will populate myECoor - public variable
+        myECoor = [];
+        myECoorFunc(nelx,nely,myNewCanvas);
+        //This will populate myElementVMStress
+        myElementVMStress = [];
+        myStrainFunc();
+        console.log(myElementVMStress);
+        //Do somthing with strain
         VisVMFunc(myElementVMStress);
-        //console.log("colors");
-        //console.log(myVMColorArray);
-        ////////////////////////////////////////////////
+
+        NProgress.done();
         //get time again
         var myTime2 = new Date().getTime();
         var myDuration = (myTime2 - myTime1)/1000;

@@ -1,6 +1,4 @@
 
-
-
 function myGameFunction() {
     var myGame = document.createElement("div");
     myGame.id = "myGame";
@@ -14,17 +12,15 @@ function myGameFunction() {
     // var mySVG = document.createElement("svg");
     // mySVG.id = "mySVG";
     // myGame.appendChild(mySVG);
-    myGame.innerHTML = "  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myCanvas'> </canvas> <canvas id='myNodeCanvas'> </canvas>"; 
+    myGame.innerHTML = "  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myCanvas'> </canvas> <canvas id='myNewCanvas'> </canvas> <canvas id='myNodeCanvas'> </canvas>"; 
     var myCanvas = window.__canvas = new fabric.Canvas("myCanvas",{
-        width: 306,
-        height: 306,
+        width: 315,
+        height: 315,
         isDrawingMode: true
     });
 
 
-    //Visualization canvases
-    var myDispCanvas = document.getElementById("myDispCanvas");
-    var myVMCanvas = document.getElementById("myVMCanvas");
+
 
     //Brush size
     myCanvas.freeDrawingBrush.width = 20;
@@ -34,6 +30,194 @@ function myGameFunction() {
     //var ctx2 = myDispCanvas.getContext('2d');
     //ctx2.blendOnto(ctx1,'screen');
     //
+    //
+
+    ///////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    myNewCanvas = document.getElementById('myNewCanvas');
+    myNewCanvas.width = 315;
+    myNewCanvas.height = 315;
+    var ctx = myNewCanvas.getContext('2d'), tileWidth, tileHeight;
+    //Radio buttons
+        //Get radio buttons
+    var Radio_Add = document.getElementById('Radio_Add');
+    var Radio_Sub = document.getElementById('Radio_Sub');
+    var Radio_AddInc = document.getElementById('Radio_AddInc');
+    var Radio_SubInc = document.getElementById('Radio_SubInc');
+
+
+    //Visualization canvases
+    var myDispCanvas = document.getElementById("myDispCanvas");
+    myDispCanvas.width = myNewCanvas.width;
+    myDispCanvas.height = myNewCanvas.height;
+    var myDispCTX= myDispCanvas.getContext('2d');
+    //
+    var myVMCanvas = document.getElementById("myVMCanvas");
+    myVMCanvas.width = myNewCanvas.width;
+    myVMCanvas.height = myNewCanvas.height;
+    var myVMCTX= myVMCanvas.getContext('2d');
+
+
+
+
+    //This will draw the grid without any fill
+    render();
+    function render() {
+        tileWidth = myNewCanvas.width / div;
+        tileHeight = myNewCanvas.height / div;
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth="1";
+        //draw grid
+        ctx.beginPath();
+        for(var x = 0; x < div+1; x++) {
+            ctx.moveTo(x * tileWidth, 0);
+            ctx.lineTo(x * tileWidth, myNewCanvas.height);
+        }
+        for(var y = 0; y < div+1; y++) {
+            ctx.moveTo(0, y * tileHeight);
+            ctx.lineTo(myNewCanvas.width, y * tileHeight);
+        }
+        ctx.stroke();
+    }
+
+
+    function drawCellsFunc(){
+        for(var i = 0 ; i < div ; i++){
+            for(var j = 0 ; j < div ; j++){
+                //populate all the cells
+                var myVal = Math.round( math.subset(myDensityMatrix, math.index(i, j)) * 10 ) / 10 ;
+                //from 0.0 t0 1.0
+                switch (myVal) {
+                    case 0.0:
+                        ctx.fillStyle = '#ffffff';
+                    break;
+                    case 0.2:
+                        ctx.fillStyle = '#E5E5E5';
+                    break;
+                    case 0.4:
+                        ctx.fillStyle = '#B3B3B3';
+                    break;
+                    case 0.6:
+                        ctx.fillStyle = '#7F7F7F';
+                    break;
+                    case 0.8:
+                        ctx.fillStyle = '#4D4D4D';
+                    break;
+                    case 1.0:
+                        ctx.fillStyle = '#000000';
+                    break;
+                }
+                //now draw a rect
+                ctx.fillRect(i * tileWidth, j * tileHeight, tileWidth, tileHeight);
+                //if current selection is also populated
+                /*
+                if( math.subset(myDensityMatrix, math.index(i, j)) <= 1  && i == xIndex && j == yIndex){
+                    ctx.fillStyle = '#0000ff';
+                    ctx.fillRect(i * tileWidth, j * tileHeight, tileWidth, tileHeight);  
+                }
+                */
+            }
+        }
+    }
+
+
+
+    
+    myNewCanvas.onmousemove = function(e) {
+        //Some calcs
+        var rect = myNewCanvas.getBoundingClientRect(),
+            mx = e.clientX - rect.left,
+            my = e.clientY - rect.top,
+            /// get index from mouse position
+            xIndex = Math.round((mx - tileWidth * 0.5) / tileWidth),
+            yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
+
+        //1_draw all cells with material
+        drawCellsFunc();
+        //2_Draw grid
+        render();
+        //3_draw highlighted cell as thick border
+        ctx.beginPath();
+        ctx.lineWidth="3";
+        ctx.strokeStyle = '#000';
+        ctx.rect(xIndex * tileWidth, yIndex * tileHeight, tileWidth, tileHeight);
+        ctx.stroke();
+
+    }
+
+    myNewCanvas.onmousedown = function (e){
+        if (e.ctrlKey) {
+            console.log("hello ctrl freak");
+        }
+        var rect = myNewCanvas.getBoundingClientRect(),
+        mx = e.clientX - rect.left,
+        my = e.clientY - rect.top,
+        /// get index from mouse position
+        xIndex = Math.round((mx - tileWidth * 0.5) / tileWidth),
+        yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
+        //////////////////////////////
+        //CASE ADD - myDensityMatrix manipulation only
+        //////////////////////////////
+        if (Radio_Add.checked) {
+            // fill the myDensityMatrix with number one
+            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), 1); 
+            console.log(myDensityMatrix);
+        }
+        //////////////////////////////
+        //CASE SUB - myDensityMatrix manipulation only
+        ////////////////////////////////
+        else if (Radio_Sub.checked) {
+            // fill the myDensityMatrix with number one
+            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), 0); 
+        }
+        //////////////////////////////
+        //CASE ADD INC - myDensityMatrix manipulation only
+        //////////////////////////////
+        else if (Radio_AddInc.checked) {
+            //Get value at that index
+            var myCurrentVal = math.subset(myDensityMatrix, math.index(xIndex, yIndex));
+            var myNewVal;
+            //Value to substitute
+            if(myCurrentVal <= 0.8){
+                myNewVal = myCurrentVal + 0.2;
+            }
+            else{
+                myNewVal = 1.0; 
+            }
+            // fill the myDensityMatrix with number one
+            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), myNewVal); 
+        }
+        //////////////////////////////
+        //CASE SUB INC - myDensityMatrix manipulation only
+        //////////////////////////////
+        else if (Radio_SubInc.checked) {
+            //Get value at that index
+            var myCurrentVal = math.subset(myDensityMatrix, math.index(xIndex, yIndex));
+            var myNewVal;
+            //Value to substitute
+            if(myCurrentVal >= 0.2){
+                myNewVal = myCurrentVal - 0.2;
+            }
+            else{
+                myNewVal = 0.0; 
+            }
+            // fill the myDensityMatrix with number one
+            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), myNewVal); 
+        }
+    }
+    
+
+
+        /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+    /////////////////////////////////////////////////
+
+
+
+
+
+
 
 
     //////////////////////////////////////////////
@@ -61,86 +245,118 @@ function myGameFunction() {
     myShowFEB.onmouseup = function (e){
         drawFEFunc(myCanvas,nelx,nely,false);
     }
+
     ///////////////////////////////////////////////////////////////////
     //Show Displacement
     ///////////////////////////////////////////////////////////////////
     //Get Button
     myShowDisp = document.getElementsByName("myShowDisp")[0];
+    var myShowDispVAR = 1;
     myShowDisp.onmousedown = function(e){
         //
-        //DRAW CANVAS
+        //CASE 1
         //
-        //Create temp canvas (off-screen/small)
-        myDispCanvasT = createCanvas(nelx+1, nely+1);
-        myDispCTXT = myDispCanvasT.getContext('2d');
-        //loop through canvas pixels
-        for (var s = 0 ; s < nelx+1 ; s++){
-            for (var t = 0 ; t < nely+1 ; t++){
-            myDispCTXT.fillStyle = myDispColorArray[s][t];
-            myDispCTXT.fillRect( s, t, 1, 1 );
+        if (myShowDispVAR == 1){
+            //
+            //DRAW CANVAS
+            //
+            //Create temp canvas (off-screen/small)
+            myDispCanvasT = createCanvas(nelx+1, nely+1);
+            myDispCTXT = myDispCanvasT.getContext('2d');
+            //loop through canvas pixels
+            for (var s = 0 ; s < nelx+1 ; s++){
+                for (var t = 0 ; t < nely+1 ; t++){
+                myDispCTXT.fillStyle = myDispColorArray[s][t];
+                myDispCTXT.fillRect( s, t, 1, 1 );
+                }
             }
+            //Get real canvas
+            //Global
+            //Put small canvas on real big canvas
+            myDispCTX.drawImage(myDispCanvasT,0,0,myNewCanvas.width,myNewCanvas.height);
+            //
+            //Set all black pixels in myCanvas to zero alpha chanel
+            //
+            var bool = false;
+            alphaFunc(myNewCanvas,bool);
+            //set VAR to 2
+            myShowDispVAR = 2;
+            //
+            //Additonal step to clear myVMCanvas canvas out of the way
+            //
+            myVMCTX.clearRect(0,0,myVMCanvas.width,myVMCanvas.height);
         }
-        //Get real canvas
-        
-        myDispCanvas.width = myCanvas.width;
-        myDispCanvas.height = myCanvas.height;
-        myDispCTX= myDispCanvas.getContext('2d');
-        //Put small canvas on real big canvas
-        myDispCTX.drawImage(myDispCanvasT,0,0,myCanvas.width,myCanvas.height);
         //
-        //Set all black pixels in myCanvas to zero alpha chanel
+        //CASE 2
         //
-        var bool = false;
-        alphaFunc(myCanvas,bool);
-        //
-        //Make sure myVMCanvas is transparent and this is opaque
-        //
-        myVMCanvas.globalAlpha = 0.5;
-        myDispCTX.globalAlpha = 1;
+        else{
+            var bool = true;
+            alphaFunc(myNewCanvas,bool);
+            //set VAR to 1
+            myShowDispVAR = 1;
+            //redraw
+            drawCellsFunc();
+            render();
+        }
+
+
     }
-    myShowDisp.onmouseup = function (e){
-        //
-    }
+
 
     /////////////////////////////////////////////////////////////////////////
     //Show VM
     /////////////////////////////////////////////////////////////////////////
     //Get Button
     myShowVM = document.getElementsByName("myShowVM")[0];
+    var myShowVMVAR = 1;
     myShowVM.onmousedown = function(e){
         //
-        //DRAW CANVAS
+        //Case 1
         //
-        //Create temp canvas (off-screen/small)
-        myVMCanvasT = createCanvas(nelx, nely);
-        myVMCTXT = myVMCanvasT .getContext('2d');
-        //loop through canvas pixels
-        for (var s = 0 ; s < nelx; s++){
-            for (var t = 0 ; t < nely ; t++){
-            myVMCTXT.fillStyle = myVMColorArray[s][t];
-            myVMCTXT.fillRect( s, t, 1, 1 );
+        if (myShowVMVAR == 1){
+            //
+            //DRAW CANVAS
+            //
+            //Create temp canvas (off-screen/small)
+            myVMCanvasT = createCanvas(nelx, nely);
+            myVMCTXT = myVMCanvasT.getContext('2d');
+            //loop through canvas pixels
+            for (var s = 0 ; s < nelx; s++){
+                for (var t = 0 ; t < nely ; t++){
+                myVMCTXT.fillStyle = myVMColorArray[s][t];
+                myVMCTXT.fillRect( s, t, 1, 1 );
+                }
             }
+            //Get real canvas
+            //global
+            //Put small canvas on real big canvas
+            myVMCTX.drawImage(myVMCanvasT,0,0,myNewCanvas.width,myNewCanvas.height);
+            //
+            //Set all black pixels in myCanvas to zero alpha chanel
+            //
+            var bool = false;
+            alphaFunc(myNewCanvas,bool);
+            //set VAR to 2
+            myShowVMVAR = 2;
+            //
+            //Additonal step to clear myDispCanvas canvas out of the way
+            //
+            myDispCTX.clearRect(0,0,myDispCanvas.width,myDispCanvas.height);
         }
-        //Get real canvas
-        myVMCanvas.width = myCanvas.width;
-        myVMCanvas.height = myCanvas.height;
-        myVMCTX= myVMCanvas.getContext('2d');
-        //Put small canvas on real big canvas
-        myVMCTX.drawImage(myVMCanvasT,0,0,myCanvas.width,myCanvas.height);
         //
-        //Set all black pixels in myCanvas to zero alpha chanel
+        //CASE 2
         //
-        var bool = false;
-        alphaFunc(myCanvas,bool);
-        //
-        //Make sure myVMCanvas is opaque and this is transparent
-        //
-        myVMCanvas.opacity = 1;
-        myDispCanvas.opacity = 0;
+        else{
+            var bool = true;
+            alphaFunc(myNewCanvas,bool);
+            //set VAR to 1
+            myShowVMVAR = 1;
+            //redraw
+            drawCellsFunc();
+            render();
+        }
     }
-    myShowVM.onmouseup = function (e){
-        //
-    }
+
 
     /////////////////////////////////////////////////////////////////////////
     //Show Nodes
@@ -148,18 +364,28 @@ function myGameFunction() {
 
     var myShowNB = document.getElementsByName("myShowNB")[0];
     var myNodeCanvas = document.getElementById("myNodeCanvas");
-
     myNodeCanvas.width = 0;
     myNodeCanvas.height = 0;
 
-
+    var myShowNBVAR = 1;
     myShowNB.onmousedown = function (e){
-        myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp);
-    }
-    myShowNB.onmouseup = function(e){
-        myNodeCanvas.width = 0;
-        myNodeCanvas.height = 0;
-        //myNodeCanvas.width = myNodeCanvas.width; 
+        //
+        //CASE 1
+        //
+        if (myShowNBVAR == 1){
+            myNodeCanvas.width = myNewCanvas.width;
+            myNodeCanvas.height = myNewCanvas.height;
+            myPlotFrameFunc(myNodeCanvas, myCanvas, myDisp);
+            myShowNBVAR = 2;
+        }
+        //
+        //CASE 2
+        //
+        else{
+            myNodeCanvas.width = 0;
+            myNodeCanvas.height = 0;
+            myShowNBVAR = 1;
+        }
     }
 
 

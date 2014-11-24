@@ -34,7 +34,7 @@
         myChallengeBoard.id = "myChallengeBoard";
         //append myChallengeBoard
         myMainBody.appendChild(myChallengeBoard);
-        myChallengeBoard.innerHTML = "Pick a Challenge.<br> or load one.<input type='file' id='myCSV'> <br>Upload HERE!<input type='file' id='myUpload'> <br> <div class='inner'>#1</div><div class='inner'>#2</div><div class='inner'>#3</div> <br> <canvasid='canvas1' width='300' height='150'> This text is displayed if your browserdoes not support HTML5 Canvas. </canvas>";
+        myChallengeBoard.innerHTML = "Pick a Challenge.<br> or load one.<input type='file' id='myCSV'> <br>Upload HERE!<input type='file' id='myUpload'> <br> <div class='inner'>#1</div><div class='inner'>#2</div><div class='inner'>#3</div> <br> <canvasid='canvas1' width='300' height='150'> </canvas>";
         //Get them to change color
         var myChallenges = document.getElementsByClassName("inner");
         //for (i = 0; i < myChallenges.Length; i++) {
@@ -61,7 +61,8 @@
         var myTools = document.createElement("div");
         myTools.id = "myTools";
         myMainBody.appendChild(myTools);
-        myTools.innerHTML = myToolsString ;
+        myTools.innerHTML = myToolsString1 ;
+        myTools.innerHTML += myToolsString2 ;
         /*
         myTools.onmouseover = function (e) {
             myTools.style.width = "100px";
@@ -80,7 +81,13 @@
     //
     //myTools String
     //
-    var myToolsString = " <input name='myCalculateB' type='submit' value='Calculate'><br><input name='myAddB' type='submit' value='Add'> <br><input name='myDeleteB' type='submit' value='Delete'> <br> <input name='myButton' type='submit' value='Undo'><br> <input name='myButton' type='submit' value='Redo'> <br> <input name='myShowFEB' type='submit' value='show Elements'> <br> <input name='myShowNB' type='submit' value='show Nodes'> <br><input name='myShowDisp' type='submit' value='show Disp'><br><input name='myShowVM' type='submit' value='show VM Stress'> <br><inputname='myButton' type='submit' value='Save'> <br> <input name='myButton'type='submit' value='Stats'> <br> <input name='myButton' type='submit' value='Settings'> <br> <input name='myButton' type='submit' value='Help'> <br>  Material %: <br> <input type='text' name='myMatPer' size='12'> <br> Bucket <input type='text' name='myBucket' size='12'> <br> Prompt <input type='text' name='myPrompt' size='20'>";
+    var myToolsString1 = " <input name='myCalculateB' type='submit' value='Calculate'><br><input name='myAddB' type='submit' value='Add'> <br><input name='myDeleteB' type='submit' value='Delete'> <br> <input name='myButton' type='submit' value='Undo'><br> <input name='myButton' type='submit' value='Redo'> <br> <input name='myShowFEB' type='submit' value='show Elements'> <br> <input name='myShowNB' type='submit' value='show Nodes'> <br><input name='myShowDisp' type='submit' value='show Disp'><br><input name='myShowVM' type='submit' value='show VM Stress'> <br><inputname='myButton' type='submit' value='Save'> <br> <input name='myButton'type='submit' value='Stats'> <br> <input name='myButton' type='submit' value='Settings'> <br> <input name='myButton' type='submit' value='Help'> <br>  Material %: <br> <input type='text' name='myMatPer' size='12'> <br> Bucket <input type='text' name='myBucket' size='12'> <br> Prompt <input type='text' name='myPrompt' size='20'>";
+    
+
+    var myToolsString2 = '<div id="myRadio"> <input type="radio" name="samename" id="Radio_Add"> Add </input> <br> <input type="radio" name="samename" id="Radio_Sub"> Subtract </input> <br> <input type="radio" name="samename" id="Radio_AddInc"> Add Incrementally </input> <br> <input type="radio" name="samename" id="Radio_SubInc"> Sub Incrementally </input>  </div>';
+
+
+
     //for SVG
     //<svg width='100' height='100'><circle cx='50' cy='50' r='40' stroke='green' stroke-width='4' fill='yellow' /></svg>
     //

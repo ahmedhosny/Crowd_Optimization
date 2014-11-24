@@ -114,3 +114,9 @@ body {
     top:0;
     left:0
 }
+#myNewCanvas{
+    position: absolute;
+    top:0;
+    left:0;
+    opacity: 1.0
+}

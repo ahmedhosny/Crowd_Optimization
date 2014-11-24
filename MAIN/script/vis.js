@@ -138,12 +138,12 @@ function myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp){
 				//Draw edges vertical
 				if(j<nely){
 	      			context.moveTo(i*dx + myDispAdjA[i][j][0], j*dy + myDispAdjA[i][j][1]*(-1));
-	      			context.lineTo(i*dx + myDispAdjA[i][j][0], (j+1)*dy + myDispAdjA[i][j+1][1]*(-1));
+	      			context.lineTo(i*dx + myDispAdjA[i][j+1][0], (j+1)*dy + myDispAdjA[i][j+1][1]*(-1));
 				}
 				//Draw edges horizontal
 				if(i<nelx){
 	      			context.moveTo(i*dx + myDispAdjA[i][j][0], j*dy + myDispAdjA[i][j][1]*(-1));
-	      			context.lineTo((i+1)*dx + myDispAdjA[i+1][j][0], j*dy + myDispAdjA[i][j][1]*(-1));
+	      			context.lineTo((i+1)*dx + myDispAdjA[i+1][j][0], j*dy + myDispAdjA[i+1][j][1]*(-1));
 				}
 				context.stroke();
 			}
