@@ -4,7 +4,6 @@ function myGameFunction() {
     myGame.id = "myGame";
     //append myChallengeBoard
     myMainBody.appendChild(myGame);
-<<<<<<< HEAD
     myGame.innerHTML = "      <myGame oncontextmenu='return false;'>  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myNewCanvas'> </canvas>  <canvas id='myNodeCanvas'> </canvas> <div id='myProgressDiv'> </div>";
     var myRadioString =  '<div id="myRadioDiv"> <form> <div id="radio" class="ui-buttonset">     \
     <input type="radio" id="radio1" name="radio" value="1"                   class="ui-helper-hidden-accessible"><label for="radio1" class="ui-state-active ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left" role="button"><span class="ui-button-text">material</span></label>     \
@@ -22,28 +21,10 @@ function myGameFunction() {
 
 
 
-=======
-    //get relative location within page
-    //var position = myGame.getBoundingClientRect();
-    //var x = position.left;
-    //var y = position.top;
-    //v=create SVG tag
-    // var mySVG = document.createElement("svg");
-    // mySVG.id = "mySVG";
-    // myGame.appendChild(mySVG);
-    myGame.innerHTML = "  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myCanvas'> </canvas> <canvas id='myNewCanvas'> </canvas> <canvas id='myNodeCanvas'> </canvas>"; 
-    var myCanvas = window.__canvas = new fabric.Canvas("myCanvas",{
-        width: 315,
-        height: 315,
-        isDrawingMode: true
-    });
->>>>>>> origin/master
 
  
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
     ///////////////////////////////////////////////
     /////////////////////////////////////////////////
@@ -78,11 +59,7 @@ function myGameFunction() {
     myVMCanvas.height = myNewCanvas.height;
     var myVMCTX= myVMCanvas.getContext('2d');
     
-=======
->>>>>>> origin/master
 
-=======
->>>>>>> origin/master
 
 
     //This will draw the grid without any fill
@@ -173,7 +150,6 @@ function myGameFunction() {
     //
     //JQUERY
     //
-<<<<<<< HEAD
     $(document).keydown(function(event){
     if(event.which=="17")
         cntrlIsPressed = true;
@@ -187,128 +163,6 @@ function myGameFunction() {
 
     myNewCanvas.onmousedown = function (e){
 
-=======
-    //
-    //
-
-    ///////////////////////////////////////////////
-    /////////////////////////////////////////////////
-    /////////////////////////////////////////////////
-    myNewCanvas = document.getElementById('myNewCanvas');
-    myNewCanvas.width = 315;
-    myNewCanvas.height = 315;
-    var ctx = myNewCanvas.getContext('2d'), tileWidth, tileHeight;
-    //Radio buttons
-        //Get radio buttons
-    var Radio_Add = document.getElementById('Radio_Add');
-    var Radio_Sub = document.getElementById('Radio_Sub');
-    var Radio_AddInc = document.getElementById('Radio_AddInc');
-    var Radio_SubInc = document.getElementById('Radio_SubInc');
-
-
-    //Visualization canvases
-    var myDispCanvas = document.getElementById("myDispCanvas");
-    myDispCanvas.width = myNewCanvas.width;
-    myDispCanvas.height = myNewCanvas.height;
-    var myDispCTX= myDispCanvas.getContext('2d');
-    //
-    var myVMCanvas = document.getElementById("myVMCanvas");
-    myVMCanvas.width = myNewCanvas.width;
-    myVMCanvas.height = myNewCanvas.height;
-    var myVMCTX= myVMCanvas.getContext('2d');
-
-
-
-
-    //This will draw the grid without any fill
-    render();
-    function render() {
-        tileWidth = myNewCanvas.width / div;
-        tileHeight = myNewCanvas.height / div;
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth="1";
-        //draw grid
-        ctx.beginPath();
-        for(var x = 0; x < div+1; x++) {
-            ctx.moveTo(x * tileWidth, 0);
-            ctx.lineTo(x * tileWidth, myNewCanvas.height);
-        }
-        for(var y = 0; y < div+1; y++) {
-            ctx.moveTo(0, y * tileHeight);
-            ctx.lineTo(myNewCanvas.width, y * tileHeight);
-        }
-        ctx.stroke();
-    }
-
-
-    function drawCellsFunc(){
-        for(var i = 0 ; i < div ; i++){
-            for(var j = 0 ; j < div ; j++){
-                //populate all the cells
-                var myVal = Math.round( math.subset(myDensityMatrix, math.index(i, j)) * 10 ) / 10 ;
-                //from 0.0 t0 1.0
-                switch (myVal) {
-                    case 0.0:
-                        ctx.fillStyle = '#ffffff';
-                    break;
-                    case 0.2:
-                        ctx.fillStyle = '#E5E5E5';
-                    break;
-                    case 0.4:
-                        ctx.fillStyle = '#B3B3B3';
-                    break;
-                    case 0.6:
-                        ctx.fillStyle = '#7F7F7F';
-                    break;
-                    case 0.8:
-                        ctx.fillStyle = '#4D4D4D';
-                    break;
-                    case 1.0:
-                        ctx.fillStyle = '#000000';
-                    break;
-                }
-                //now draw a rect
-                ctx.fillRect(i * tileWidth, j * tileHeight, tileWidth, tileHeight);
-                //if current selection is also populated
-                /*
-                if( math.subset(myDensityMatrix, math.index(i, j)) <= 1  && i == xIndex && j == yIndex){
-                    ctx.fillStyle = '#0000ff';
-                    ctx.fillRect(i * tileWidth, j * tileHeight, tileWidth, tileHeight);  
-                }
-                */
-            }
-        }
-    }
-
-
-
-    
-    myNewCanvas.onmousemove = function(e) {
-        //Some calcs
-        var rect = myNewCanvas.getBoundingClientRect(),
-            mx = e.clientX - rect.left,
-            my = e.clientY - rect.top,
-            /// get index from mouse position
-            xIndex = Math.round((mx - tileWidth * 0.5) / tileWidth),
-            yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
-
-        //1_draw all cells with material
-        drawCellsFunc();
-        //2_Draw grid
-        render();
-        //3_draw highlighted cell as thick border
-        ctx.beginPath();
-        ctx.lineWidth="3";
-        ctx.strokeStyle = '#000';
-        ctx.rect(xIndex * tileWidth, yIndex * tileHeight, tileWidth, tileHeight);
-        ctx.stroke();
-
-    }
-
-    myNewCanvas.onmousedown = function (e){
-        if (e.ctrlKey) {
-            console.log("hello ctrl freak");
-        }
         var rect = myNewCanvas.getBoundingClientRect(),
         mx = e.clientX - rect.left,
         my = e.clientY - rect.top,
@@ -317,232 +171,29 @@ function myGameFunction() {
         yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
         //////////////////////////////
         //CASE ADD - myDensityMatrix manipulation only
-        //////////////////////////////
-        if (Radio_Add.checked) {
-            // fill the myDensityMatrix with number one
-            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), 1); 
-            console.log(myDensityMatrix);
-        }
-        //////////////////////////////
-        //CASE SUB - myDensityMatrix manipulation only
-        ////////////////////////////////
-        else if (Radio_Sub.checked) {
-            // fill the myDensityMatrix with number one
-            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), 0); 
-        }
-        //////////////////////////////
-        //CASE ADD INC - myDensityMatrix manipulation only
-        //////////////////////////////
-        else if (Radio_AddInc.checked) {
-            //Get value at that index
-            var myCurrentVal = math.subset(myDensityMatrix, math.index(xIndex, yIndex));
-            var myNewVal;
-            //Value to substitute
-            if(myCurrentVal <= 0.8){
-                myNewVal = myCurrentVal + 0.2;
-            }
-            else{
-                myNewVal = 1.0; 
-            }
-            // fill the myDensityMatrix with number one
-            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), myNewVal); 
-        }
-        //////////////////////////////
-        //CASE SUB INC - myDensityMatrix manipulation only
-        //////////////////////////////
-        else if (Radio_SubInc.checked) {
-            //Get value at that index
-            var myCurrentVal = math.subset(myDensityMatrix, math.index(xIndex, yIndex));
-            var myNewVal;
-            //Value to substitute
-            if(myCurrentVal >= 0.2){
-                myNewVal = myCurrentVal - 0.2;
-            }
-            else{
-                myNewVal = 0.0; 
-            }
-            // fill the myDensityMatrix with number one
-            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), myNewVal); 
-        }
-    }
-    
-
-
-        /////////////////////////////////////////////////
-    /////////////////////////////////////////////////
-    /////////////////////////////////////////////////
-
-
-
-
-
-
-
-    ///////////////////////////////////////////////
-    /////////////////////////////////////////////////
-    /////////////////////////////////////////////////
-    myNewCanvas = document.getElementById('myNewCanvas');
-    myNewCanvas.width = 315;
-    myNewCanvas.height = 315;
-    var ctx = myNewCanvas.getContext('2d'), tileWidth, tileHeight;
-    //Radio buttons
-        //Get radio buttons
-    var Radio_Add = document.getElementById('Radio_Add');
-    var Radio_Sub = document.getElementById('Radio_Sub');
-    var Radio_AddInc = document.getElementById('Radio_AddInc');
-    var Radio_SubInc = document.getElementById('Radio_SubInc');
-
-
-    //Visualization canvases
-    var myDispCanvas = document.getElementById("myDispCanvas");
-    myDispCanvas.width = myNewCanvas.width;
-    myDispCanvas.height = myNewCanvas.height;
-    var myDispCTX= myDispCanvas.getContext('2d');
-    //
-    var myVMCanvas = document.getElementById("myVMCanvas");
-    myVMCanvas.width = myNewCanvas.width;
-    myVMCanvas.height = myNewCanvas.height;
-    var myVMCTX= myVMCanvas.getContext('2d');
-
-
-
-
-    //This will draw the grid without any fill
-    render();
-    function render() {
-        tileWidth = myNewCanvas.width / div;
-        tileHeight = myNewCanvas.height / div;
-        ctx.strokeStyle = '#000';
-        ctx.lineWidth="1";
-        //draw grid
-        ctx.beginPath();
-        for(var x = 0; x < div+1; x++) {
-            ctx.moveTo(x * tileWidth, 0);
-            ctx.lineTo(x * tileWidth, myNewCanvas.height);
-        }
-        for(var y = 0; y < div+1; y++) {
-            ctx.moveTo(0, y * tileHeight);
-            ctx.lineTo(myNewCanvas.width, y * tileHeight);
-        }
-        ctx.stroke();
-    }
-
-
-    function drawCellsFunc(){
-        for(var i = 0 ; i < div ; i++){
-            for(var j = 0 ; j < div ; j++){
-                //populate all the cells
-                var myVal = Math.round( math.subset(myDensityMatrix, math.index(i, j)) * 10 ) / 10 ;
-                //from 0.0 t0 1.0
-                switch (myVal) {
-                    case 0.0:
-                        ctx.fillStyle = '#ffffff';
-                    break;
-                    case 0.2:
-                        ctx.fillStyle = '#E5E5E5';
-                    break;
-                    case 0.4:
-                        ctx.fillStyle = '#B3B3B3';
-                    break;
-                    case 0.6:
-                        ctx.fillStyle = '#7F7F7F';
-                    break;
-                    case 0.8:
-                        ctx.fillStyle = '#4D4D4D';
-                    break;
-                    case 1.0:
-                        ctx.fillStyle = '#000000';
-                    break;
-                }
-                //now draw a rect
-                ctx.fillRect(i * tileWidth, j * tileHeight, tileWidth, tileHeight);
-                //if current selection is also populated
-                /*
-                if( math.subset(myDensityMatrix, math.index(i, j)) <= 1  && i == xIndex && j == yIndex){
-                    ctx.fillStyle = '#0000ff';
-                    ctx.fillRect(i * tileWidth, j * tileHeight, tileWidth, tileHeight);  
-                }
-                */
-            }
-        }
-    }
-
-
-
-    
-    myNewCanvas.onmousemove = function(e) {
-        //Some calcs
-        var rect = myNewCanvas.getBoundingClientRect(),
-            mx = e.clientX - rect.left,
-            my = e.clientY - rect.top,
-            /// get index from mouse position
-            xIndex = Math.round((mx - tileWidth * 0.5) / tileWidth),
-            yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
-
-        //1_draw all cells with material
-        drawCellsFunc();
-        //2_Draw grid
-        render();
-        //3_draw highlighted cell as thick border
-        ctx.beginPath();
-        ctx.lineWidth="3";
-        ctx.strokeStyle = '#000';
-        ctx.rect(xIndex * tileWidth, yIndex * tileHeight, tileWidth, tileHeight);
-        ctx.stroke();
-
-    }
-
-    myNewCanvas.onmousedown = function (e){
-        if (e.ctrlKey) {
-            console.log("hello ctrl freak");
-        }
->>>>>>> origin/master
-        var rect = myNewCanvas.getBoundingClientRect(),
-        mx = e.clientX - rect.left,
-        my = e.clientY - rect.top,
-        /// get index from mouse position
-        xIndex = Math.round((mx - tileWidth * 0.5) / tileWidth),
-        yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
-        //////////////////////////////
-        //CASE ADD - myDensityMatrix manipulation only
-<<<<<<< HEAD
         //Left click
         //////////////////////////////
         if (e.which == 1 && cntrlIsPressed==false) { 
             Radio_Add.checked = true;
-=======
-        //////////////////////////////
-        if (Radio_Add.checked) {
->>>>>>> origin/master
             // fill the myDensityMatrix with number one
             myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), 1); 
             console.log(myDensityMatrix);
         }
         //////////////////////////////
         //CASE SUB - myDensityMatrix manipulation only
-<<<<<<< HEAD
         //Right click
         ////////////////////////////////
         else if (e.which == 3 && cntrlIsPressed==false) {
             Radio_Sub.checked = true;
-=======
-        ////////////////////////////////
-        else if (Radio_Sub.checked) {
->>>>>>> origin/master
             // fill the myDensityMatrix with number one
             myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), 0); 
         }
         //////////////////////////////
         //CASE ADD INC - myDensityMatrix manipulation only
-<<<<<<< HEAD
         // left + ctrl
         //////////////////////////////
         else if (e.which == 1 && cntrlIsPressed) {
             Radio_AddInc.checked = true;
-=======
-        //////////////////////////////
-        else if (Radio_AddInc.checked) {
->>>>>>> origin/master
             //Get value at that index
             var myCurrentVal = math.subset(myDensityMatrix, math.index(xIndex, yIndex));
             var myNewVal;
@@ -558,15 +209,10 @@ function myGameFunction() {
         }
         //////////////////////////////
         //CASE SUB INC - myDensityMatrix manipulation only
-<<<<<<< HEAD
         // right + ctrl
         //////////////////////////////
         else if (e.which == 3 && cntrlIsPressed) { 
             Radio_SubInc.checked = true;
-=======
-        //////////////////////////////
-        else if (Radio_SubInc.checked) {
->>>>>>> origin/master
             //Get value at that index
             var myCurrentVal = math.subset(myDensityMatrix, math.index(xIndex, yIndex));
             var myNewVal;
@@ -580,7 +226,6 @@ function myGameFunction() {
             // fill the myDensityMatrix with number one
             myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), myNewVal); 
         }
-<<<<<<< HEAD
 
         /////////////////////////////
         //Now adjust myDensity
@@ -594,17 +239,11 @@ function myGameFunction() {
         console.log (val);
         $(bar).animate({height: val}, 200);
         myBucket.value = val;
-=======
->>>>>>> origin/master
     }
     
 
 
-<<<<<<< HEAD
     /////////////////////////////////////////////////
-=======
-        /////////////////////////////////////////////////
->>>>>>> origin/master
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
 
@@ -618,7 +257,6 @@ function myGameFunction() {
     //////////////////////////////////////////////
     //Buttons
     /////////////////////////////////////////////
-<<<<<<< HEAD
     $(function() {
         $( "#radio" ).buttonset();
     });
@@ -629,33 +267,6 @@ function myGameFunction() {
         console.log("bioghsghsfdgh");
     });
 
-=======
-    //Delete button - white
-    var myDeleteB = document.getElementsByName("myDeleteB")[0];
-    myDeleteB.onmousedown = function(e){
-        myDeleteFlag = true;
-        myAddFlag = false;
-        myCanvas.freeDrawingBrush.color = "#ffffff";  
-    }
-    //Delete button - white
-    var myAddB = document.getElementsByName("myAddB")[0];
-    myAddB.onmousedown = function(e){
-        myAddFlag = true;
-        myDeleteFlag = false;
-        myCanvas.freeDrawingBrush.color = "#000000"; 
-    }
-    //show elements
-    myShowFEB = document.getElementsByName("myShowFEB")[0];
-    myShowFEB.onmousedown = function(e){
-        drawFEFunc(myCanvas,nelx,nely,true);
-    }
-    myShowFEB.onmouseup = function (e){
-        drawFEFunc(myCanvas,nelx,nely,false);
-    }
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
->>>>>>> origin/master
 
     ///////////////////////////////////////////////////////////////////
     //Show Displacement
@@ -709,13 +320,7 @@ function myGameFunction() {
             //redraw
             drawCellsFunc();
             render();
-<<<<<<< HEAD
-<<<<<<< HEAD
             
-=======
->>>>>>> origin/master
-=======
->>>>>>> origin/master
         }
 
 
@@ -774,14 +379,8 @@ function myGameFunction() {
             //redraw
             drawCellsFunc();
             render();
-<<<<<<< HEAD
-<<<<<<< HEAD
             
 
-=======
->>>>>>> origin/master
-=======
->>>>>>> origin/master
         }
     }
 
@@ -803,15 +402,7 @@ function myGameFunction() {
         if (myShowNBVAR == 1){
             myNodeCanvas.width = myNewCanvas.width;
             myNodeCanvas.height = myNewCanvas.height;
-<<<<<<< HEAD
-<<<<<<< HEAD
             myPlotFrameFunc(myNodeCanvas, myNewCanvas, myDisp);
-=======
-            myPlotFrameFunc(myNodeCanvas, myCanvas, myDisp);
->>>>>>> origin/master
-=======
-            myPlotFrameFunc(myNodeCanvas, myCanvas, myDisp);
->>>>>>> origin/master
             myShowNBVAR = 2;
         }
         //
@@ -822,8 +413,6 @@ function myGameFunction() {
             myNodeCanvas.height = 0;
             myShowNBVAR = 1;
         }
-<<<<<<< HEAD
-<<<<<<< HEAD
     }
     
 }
@@ -851,10 +440,6 @@ function alphaFunc(myCanvas,bool){
                 data[i+3] = 0;
             }
         }
-=======
->>>>>>> origin/master
-=======
->>>>>>> origin/master
     }
     //now draw the context using the adjusted values
     context.putImageData(imageData,0,0);

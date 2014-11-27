@@ -146,7 +146,6 @@ width: 315px
     overflow: hidden;
     z-index:8;
 }
-<<<<<<< HEAD
 
 .bucket_inner {
     border: 2px solid #999;
@@ -185,20 +184,3 @@ width: 315px
 }
 
 
-=======
-#myNewCanvas{
-    position: absolute;
-    top:0;
-    left:0;
-    opacity: 1.0
-}
-<<<<<<< HEAD
->>>>>>> origin/master
-=======
-#myNewCanvas{
-    position: absolute;
-    top:0;
-    left:0;
-    opacity: 1.0
-}
->>>>>>> origin/master
