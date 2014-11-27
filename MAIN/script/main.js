@@ -63,6 +63,13 @@
         myMainBody.appendChild(myTools);
         myTools.innerHTML = myToolsString1 ;
         myTools.innerHTML += myToolsString2 ;
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+=======
+>>>>>>> origin/master
+=======
+>>>>>>> origin/master
         /*
         myTools.onmouseover = function (e) {
             myTools.style.width = "100px";
@@ -81,10 +88,24 @@
     //
     //myTools String
     //
+<<<<<<< HEAD
+<<<<<<< HEAD
+    var myToolsString1 = " <input name='myCalculateB' type='submit' value='Calculate'><br><input name='myShowNB' type='submit' value='show Nodes'> <br><input name='myShowDisp' type='submit' value='show Disp'><br><input name='myShowVM' type='submit' value='show VM Stress'> <br>  <br> <input type='text' name='myMatPer' size='12'>  <br> Prompt <input type='text' name='myPrompt' size='20'>";
+    
+    var myToolsString2 = '<div id="myRadio"> <input type="radio" name="samename" id="Radio_Add"> Add </input> <br> <input type="radio" name="samename" id="Radio_Sub"> Subtract </input> <br> <input type="radio" name="samename" id="Radio_AddInc"> Add Incrementally </input> <br> <input type="radio" name="samename" id="Radio_SubInc"> Sub Incrementally </input>  </div> <br> <div class="bucket_outer"> <input id = "myBucket" type="text" name="myBucket" size="12"><div class="bucket_inner"> <div></div> </div> </div>';
+
+
+=======
+=======
+>>>>>>> origin/master
     var myToolsString1 = " <input name='myCalculateB' type='submit' value='Calculate'><br><input name='myAddB' type='submit' value='Add'> <br><input name='myDeleteB' type='submit' value='Delete'> <br> <input name='myButton' type='submit' value='Undo'><br> <input name='myButton' type='submit' value='Redo'> <br> <input name='myShowFEB' type='submit' value='show Elements'> <br> <input name='myShowNB' type='submit' value='show Nodes'> <br><input name='myShowDisp' type='submit' value='show Disp'><br><input name='myShowVM' type='submit' value='show VM Stress'> <br><inputname='myButton' type='submit' value='Save'> <br> <input name='myButton'type='submit' value='Stats'> <br> <input name='myButton' type='submit' value='Settings'> <br> <input name='myButton' type='submit' value='Help'> <br>  Material %: <br> <input type='text' name='myMatPer' size='12'> <br> Bucket <input type='text' name='myBucket' size='12'> <br> Prompt <input type='text' name='myPrompt' size='20'>";
     
 
     var myToolsString2 = '<div id="myRadio"> <input type="radio" name="samename" id="Radio_Add"> Add </input> <br> <input type="radio" name="samename" id="Radio_Sub"> Subtract </input> <br> <input type="radio" name="samename" id="Radio_AddInc"> Add Incrementally </input> <br> <input type="radio" name="samename" id="Radio_SubInc"> Sub Incrementally </input>  </div>';
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
+>>>>>>> origin/master
 
 
 

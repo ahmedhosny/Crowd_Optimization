@@ -124,7 +124,6 @@ function myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp){
 		}
 		//convert to array
 		var myDispAdjA = List2Array(myDispAdj,nelx+1,nely+1)
-		console.log(myDispAdjA);
 		//
 		//after case 
 		//

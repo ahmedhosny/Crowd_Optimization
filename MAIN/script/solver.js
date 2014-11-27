@@ -199,11 +199,21 @@ function myBCFunc (nelx,nely,F){
     F = math.subset(F, math.index(myIndex-1, 0), -1);
     F = math.subset(F, math.index(myIndex-3, 0), -1);
     F = math.subset(F, math.index(myIndex-5, 0), -1);
+<<<<<<< HEAD
+<<<<<<< HEAD
+
+=======
+=======
+>>>>>>> origin/master
     F = math.subset(F, math.index(myIndex-7, 0), -1);
     F = math.subset(F, math.index(myIndex-9, 0), -1);
     F = math.subset(F, math.index(myIndex-11, 0), -1);
     F = math.subset(F, math.index(myIndex-13, 0), -1);
     F = math.subset(F, math.index(myIndex-15, 0), -1);
+<<<<<<< HEAD
+>>>>>>> origin/master
+=======
+>>>>>>> origin/master
 
 
 
@@ -357,7 +367,15 @@ function myCalculateFunction (){
     var myCalculateB = document.getElementsByName("myCalculateB")[0]; 
 
     myCalculateB.onmouseover = function (e){
+<<<<<<< HEAD
+<<<<<<< HEAD
+        NProgress.configure({ parent: '#myProgressDiv' });
+=======
         NProgress.configure({ parent: '#myTitleBar' });
+>>>>>>> origin/master
+=======
+        NProgress.configure({ parent: '#myTitleBar' });
+>>>>>>> origin/master
         //NProgress.inc(0.3);
         NProgress.configure({ minimum: 0.2});
         var delay=50;
@@ -404,9 +422,6 @@ function myCalculateFunction (){
         var myDuration = (myTime2 - myTime1)/1000;
         console.log("Time to compute " , myDuration , "seconds");
         
-
-        //console.log(myEDOFList);  
-        //myCoorList  = myECoorFunc(nelx,nely,myCanvas);
 
 
     }
