@@ -7,6 +7,9 @@ var myNewCanvas;
 var nelx = div;
 var nely = div;
 var myDensityMatrix = math.zeros(nelx, nely);
+var myDensityMatrixContainer = [];
+//push one array
+myDensityMatrixContainer.push(myDensityMatrix);
 /////////// 
 var penal = 3;
 var E = 0.5, nu = 0.3;
@@ -22,6 +25,13 @@ var myDisp = [];
 var myElementVMStress = [];
 var myVMColorArray = [];
 var myPrompt;
+var myBucket;
+//
+var myCurrentStateIndex = 0;
+//Flags
+var myDuplicateFlag = false;
+
+
 //
 //
 //
@@ -349,61 +359,72 @@ function myStrainFunc (){ //deosn't return anything for now
 //
 //
 //
-function myCalculateFunction (){
-    var myCalculateB = document.getElementsByName("myCalculateB")[0]; 
 
-    myCalculateB.onmouseover = function (e){
-        NProgress.configure({ parent: '#myProgressDiv' });
-        //NProgress.inc(0.3);
-        NProgress.configure({ minimum: 0.2});
-        var delay=50;
-        setTimeout(function(){
-            NProgress.start(); 
-            NProgress.inc(0.1);
-            myPrompt.value = "Calculating";
-        },delay);   
+function myCalculateFunction (myBoolean, myBoolean2){
+    //Get time
+    var myTime1 = new Date().getTime();
+    // get KE
+    var myKE = KE(E,nu);
+    //  get x
+    var x = elementDensityFunc(myDensityMatrixContainer[myCurrentStateIndex],div);
+    //console.log("this is x");
+    //console.log(x._data);
+    
+    // solver
+    myDisp = [];
+    myDisp = mySolver(nelx,nely,x,penal,myKE,U);
+    //console.log(myDisp);
+    //populate myDispColorArray 
+    
+    VisDispFunc(myDisp);
+    //This will populate myECoor - public variable
+    myECoor = [];
+    myECoorFunc(nelx,nely,myNewCanvas);
+    //This will populate myElementVMStress
+    myElementVMStress = [];
+    myStrainFunc();
+    //console.log(myElementVMStress);
+    //Do somthing with strain
+    VisVMFunc(myElementVMStress);
+
+    NProgress.done();
+    //get time again
+    var myTime2 = new Date().getTime();
+    var myDuration = (myTime2 - myTime1)/1000;
+    console.log("Time to compute " , myDuration , "seconds");
+    myPrompt.value = "Done!";
+    if(myBoolean){
+
+        //Add to container
+        myDensityMatrixContainer.push(x);
+        console.log(myDensityMatrixContainer);
+
+        //change options in stateMenu
+        addOption();
+    }
+
+
+    //Now adjust select to last one in list
+    //if automatically running
+    if( myBoolean2){
+        $("#stateMenu").val(myDensityMatrixContainer.length - 1);
+        $('#stateMenu').selectmenu('refresh');
+        myCurrentStateIndex = $( "#stateMenu" ).val();
+    }
+    //if not automatically running and I want to choose whatever I want
+    else{
+
+        // do nothing
     }
 
 
 
-    myCalculateB.onmousedown  = function (e){
 
-        //Get time
-        var myTime1 = new Date().getTime();
-        // get KE
-        var myKE = KE(E,nu);
-        //  get x
-        var x = elementDensityFunc(myDensityMatrix,div);
-        console.log("this is x");
-        console.log(x._data);
-        
-        // solver
-        myDisp = [];
-        myDisp = mySolver(nelx,nely,x,penal,myKE,U);
-        console.log(myDisp);
-        //populate myDispColorArray 
-        
-        VisDispFunc(myDisp);
-        //This will populate myECoor - public variable
-        myECoor = [];
-        myECoorFunc(nelx,nely,myNewCanvas);
-        //This will populate myElementVMStress
-        myElementVMStress = [];
-        myStrainFunc();
-        console.log(myElementVMStress);
-        //Do somthing with strain
-        VisVMFunc(myElementVMStress);
-
-        NProgress.done();
-        //get time again
-        var myTime2 = new Date().getTime();
-        var myDuration = (myTime2 - myTime1)/1000;
-        console.log("Time to compute " , myDuration , "seconds");
-        
-
-
-    }
 }
+
+
+
+
 //
 //
 //

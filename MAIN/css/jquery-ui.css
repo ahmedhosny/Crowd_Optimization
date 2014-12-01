@@ -209,7 +209,7 @@ input.ui-button {
 /* button sets */
 .ui-buttonset {
 	margin-right: 7px;
-	padding-top: 30px
+	margin-top: -30px;
 }
 .ui-buttonset .ui-button {
 	margin-left: 0;
@@ -646,7 +646,7 @@ button.ui-button::-moz-focus-inner {
 	text-align: left;
 	padding: 0.4em 2.1em 0.4em 1em;
 	display: block;
-	line-height: 1.4;
+	line-height: 2.1;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

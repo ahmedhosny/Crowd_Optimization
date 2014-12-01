@@ -5,15 +5,29 @@ function myGameFunction() {
     //append myChallengeBoard
     myMainBody.appendChild(myGame);
     myGame.innerHTML = "      <myGame oncontextmenu='return false;'>  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myNewCanvas'> </canvas>  <canvas id='myNodeCanvas'> </canvas> <div id='myProgressDiv'> </div>";
-    var myRadioString =  '<div id="myRadioDiv"> <form> <div id="radio" class="ui-buttonset">     \
+    var myRadioString =  ' <div id="myToolBar" >  \
+    <div id="myCalB" class="ui-button ui-widget ui-state-default ui-corner-all" role="button"><span class="ui-icon ui-icon-calculator"></span></div> \
+    <div id="myRadioDiv">  \
+    <form> <div id="radio" class="ui-buttonset">     \
     <input type="radio" id="radio1" name="radio" value="1"                   class="ui-helper-hidden-accessible"><label for="radio1" class="ui-state-active ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left" role="button"><span class="ui-button-text">material</span></label>     \
     <input type="radio" id="radio2" name="radio" value="2"                 class="ui-helper-hidden-accessible"><label for="radio2" class=" ui-button ui-widget ui-state-default ui-button-text-only" role="button"><span class="ui-button-text">mesh</span></label>    \
      <input type="radio" id="radio3" name="radio"  value="3"                 class="ui-helper-hidden-accessible"><label for="radio3" class=" ui-button ui-widget ui-state-default ui-button-text-only" role="button"><span class="ui-button-text">displacement</span></label>      \
-     <input type="radio" id="radio4" name="radio"   value="4"                class="ui-helper-hidden-accessible"><label for="radio4" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right" role="button"><span class="ui-button-text">stress</span></label> </div> </form> </div>';
+     <input type="radio" id="radio4" name="radio"   value="4"                class="ui-helper-hidden-accessible"><label for="radio4" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right" role="button"><span class="ui-button-text">stress</span></label> </div>  \
+     </form> </div> \
+     <br> <fieldset>  <select id="stateMenu">  </select> </fieldset>  \
+     <div id="bucketDiv" > <div class="bucket_outer"> <input id = "myBucket" type="text" name="myBucket" size="12"><div class="bucket_inner"> <div></div> </div> </div> </div> \
+     <br> <br> <br> <br> <input id ="myPrompt" type="text" name="myPrompt" size="50" readonly>  \
+     </div> ' ;
+
+
+
+
+
 
 
 
 //checked="checked"
+//selected="selected"
 
 
     myGame.innerHTML += myRadioString;
@@ -35,14 +49,14 @@ function myGameFunction() {
     var ctx = myNewCanvas.getContext('2d'), tileWidth, tileHeight;
     //Radio buttons
     //Get radio buttons
-    var Radio_Add = document.getElementById('Radio_Add');
-    var Radio_Sub = document.getElementById('Radio_Sub');
-    var Radio_AddInc = document.getElementById('Radio_AddInc');
-    var Radio_SubInc = document.getElementById('Radio_SubInc');
+    //var Radio_Add = document.getElementById('Radio_Add');
+    //var Radio_Sub = document.getElementById('Radio_Sub');
+    //var Radio_AddInc = document.getElementById('Radio_AddInc');
+    //var Radio_SubInc = document.getElementById('Radio_SubInc');
     //
-    var myBucket = document.getElementsByName("myBucket")[0];
+    myBucket = document.getElementsByName("myBucket")[0];
     //
-    var myPrompt = document.getElementsByName("myPrompt")[0];
+    myPrompt = document.getElementById("myPrompt");
     //
     var myProgressDiv = document.getElementById('myProgressDiv');
 
@@ -83,7 +97,7 @@ function myGameFunction() {
     }
 
 
-    function drawCellsFunc(){
+    function drawCellsFunc(myDensityMatrix){
         for(var i = 0 ; i < div ; i++){
             for(var j = 0 ; j < div ; j++){
                 //populate all the cells
@@ -124,6 +138,30 @@ function myGameFunction() {
 
 
 
+    //////////////////////////////////////
+    //myNewCanvas on mouse out
+    //////////////////////////////////////
+
+
+     myNewCanvas.onmouseout = function(e) {
+        //Some calcs
+        var rect = myNewCanvas.getBoundingClientRect(),
+            mx = e.clientX - rect.left,
+            my = e.clientY - rect.top,
+            /// get index from mouse position
+            xIndex = Math.round((mx - tileWidth * 0.5) / tileWidth),
+            yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
+
+        //1_draw all cells with material
+        drawCellsFunc(myDensityMatrixContainer[myCurrentStateIndex]);
+        //2_Draw grid
+        render();
+
+    }
+
+    //////////////////////////////////////
+    //myNewCanvas on mouse move
+    //////////////////////////////////////
     
     myNewCanvas.onmousemove = function(e) {
         //Some calcs
@@ -135,7 +173,10 @@ function myGameFunction() {
             yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
 
         //1_draw all cells with material
-        drawCellsFunc();
+        drawCellsFunc(myDensityMatrixContainer[myCurrentStateIndex]);
+        console.log("ommousemove " + myCurrentStateIndex);
+        console.log( " the current one")
+        console.log(myDensityMatrixContainer[myCurrentStateIndex]);
         //2_Draw grid
         render();
         //3_draw highlighted cell as thick border
@@ -160,6 +201,10 @@ function myGameFunction() {
     });
     var cntrlIsPressed = false;
 
+    //////////////////////////////////////
+    //myNewCanvas on mouse down
+    //////////////////////////////////////
+
 
     myNewCanvas.onmousedown = function (e){
 
@@ -174,28 +219,30 @@ function myGameFunction() {
         //Left click
         //////////////////////////////
         if (e.which == 1 && cntrlIsPressed==false) { 
-            Radio_Add.checked = true;
+            // Radio_Add.checked = true;
             // fill the myDensityMatrix with number one
-            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), 1); 
-            console.log(myDensityMatrix);
+            myDensityMatrixContainer[myCurrentStateIndex]= math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex), 1); 
+            myPrompt.value = "Material added.";
+
         }
         //////////////////////////////
         //CASE SUB - myDensityMatrix manipulation only
         //Right click
         ////////////////////////////////
         else if (e.which == 3 && cntrlIsPressed==false) {
-            Radio_Sub.checked = true;
+            //Radio_Sub.checked = true;
             // fill the myDensityMatrix with number one
-            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), 0); 
+            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex), 0); 
+            myPrompt.value = "Material subtracted.";
         }
         //////////////////////////////
         //CASE ADD INC - myDensityMatrix manipulation only
         // left + ctrl
         //////////////////////////////
         else if (e.which == 1 && cntrlIsPressed) {
-            Radio_AddInc.checked = true;
+            //Radio_AddInc.checked = true;
             //Get value at that index
-            var myCurrentVal = math.subset(myDensityMatrix, math.index(xIndex, yIndex));
+            var myCurrentVal = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex));
             var myNewVal;
             //Value to substitute
             if(myCurrentVal <= 0.8){
@@ -205,16 +252,17 @@ function myGameFunction() {
                 myNewVal = 1.0; 
             }
             // fill the myDensityMatrix with number one
-            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), myNewVal); 
+            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex), myNewVal); 
+            myPrompt.value = "Material added.";
         }
         //////////////////////////////
         //CASE SUB INC - myDensityMatrix manipulation only
         // right + ctrl
         //////////////////////////////
         else if (e.which == 3 && cntrlIsPressed) { 
-            Radio_SubInc.checked = true;
+            //Radio_SubInc.checked = true;
             //Get value at that index
-            var myCurrentVal = math.subset(myDensityMatrix, math.index(xIndex, yIndex));
+            var myCurrentVal = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex));
             var myNewVal;
             //Value to substitute
             if(myCurrentVal >= 0.2){
@@ -224,21 +272,14 @@ function myGameFunction() {
                 myNewVal = 0.0; 
             }
             // fill the myDensityMatrix with number one
-            myDensityMatrix = math.subset(myDensityMatrix, math.index(xIndex, yIndex), myNewVal); 
+            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex), myNewVal);
+            myPrompt.value = "Material subtracted."; 
         }
 
         /////////////////////////////
         //Now adjust myDensity
         ////////////////////////////
-        //This will reset myDensity and populate it
-        var myDensity = calDensityFunc(div, myDensityMatrix);
-        //change bar reading
-        var bar = document.getElementsByClassName("bucket_inner")[0];
-        var val = (myDensity/(nelx*nely)*100).toFixed(1) + '%';
-        console.log (myDensity);
-        console.log (val);
-        $(bar).animate({height: val}, 200);
-        myBucket.value = val;
+        adjustDensityAndBar();
     }
     
 
@@ -248,6 +289,66 @@ function myGameFunction() {
     /////////////////////////////////////////////////
 
 
+
+    //////////////////////////////////////////////
+    //state menu
+    /////////////////////////////////////////////
+
+
+
+
+
+    $(function() {
+        $( "#stateMenu" )
+            .selectmenu()
+            .selectmenu( "menuWidget" )
+            .addClass( "overflow" );
+    });
+
+    $("#stateMenu").on('selectmenuchange', function() {
+        myCurrentStateIndex = $( "#stateMenu" ).val();
+
+
+
+        //display that state on myNewCanvas here...
+        //1_draw all cells with material
+        drawCellsFunc(myDensityMatrixContainer[myCurrentStateIndex]);
+        //2_Draw grid
+        render();
+
+        adjustDensityAndBar();
+        //close the menu
+        //$( "#stateMenu" ).close();
+
+
+        //check is less than length of list - to avoid overwriting existing solutions
+        console.log(myCurrentStateIndex);
+        if (myCurrentStateIndex < myDensityMatrixContainer.length -1){
+            console.log ("less than biatch"); 
+            myDuplicateFlag = true;
+            //get last Matrix and set it to matrix of myCurrentStateIndex
+            myDensityMatrixContainer[myDensityMatrixContainer.length -1] = myDensityMatrixContainer[myCurrentStateIndex];
+            //set myCurrentStateIndex to last element
+            myCurrentStateIndex = myDensityMatrixContainer.length -1;
+        }
+
+        console.log(myCurrentStateIndex);
+
+
+        //Recalculate but dont add a new array to myDensityMatrixContainer...(this will set index to last item in container)
+        var myBoolean = false;
+        myCalculateFunction(myBoolean, myBoolean);
+
+
+
+        //Now adjust myDensity and Bar
+        ////////////////////////////
+
+       
+
+
+
+    });
 
 
 
@@ -261,25 +362,48 @@ function myGameFunction() {
         $( "#radio" ).buttonset();
     });
 
+    myNodeCanvas.width = 0;
+    myNodeCanvas.height = 0;
 
     $('#radio input').on('change', function() {
-        alert($('input[name=radio]:checked', '#radio').val()); 
-        console.log("bioghsghsfdgh");
-    });
+        var myVal = $('input[name=radio]:checked', '#radio').val(); 
+        drawCellsFunc(myDensityMatrixContainer[myCurrentStateIndex]);
+        
+        //
+        // Material
+        //
+        if (myVal == 1){
+            //for Mesh
+            myNodeCanvas.width = 0;
+            myNodeCanvas.height = 0;
+            //for disp and VM
+            var bool = true;
+            alphaFunc(myNewCanvas,bool);
+            drawCellsFunc(myDensityMatrixContainer[myCurrentStateIndex]);
+            render();
+        }
+        //
+        // Mesh
+        //
+        else if(myVal == 2){
+
+            myNodeCanvas.width = myNewCanvas.width;
+            myNodeCanvas.height = myNewCanvas.height;
+            myPlotFrameFunc(myNodeCanvas, myNewCanvas, myDisp);
+
+        }
+        //
+        // Disp
+        //
+        else if(myVal == 3){
+            //for Mesh
+            myNodeCanvas.width = 0;
+            myNodeCanvas.height = 0;
 
 
-    ///////////////////////////////////////////////////////////////////
-    //Show Displacement
-    ///////////////////////////////////////////////////////////////////
-    //Get Button
-    myShowDisp = document.getElementsByName("myShowDisp")[0];
-    var myShowDispVAR = 1;
-    myShowDisp.onmousedown = function(e){
-        drawCellsFunc();
-        //
-        //CASE 1
-        //
-        if (myShowDispVAR == 1){
+
+
+
             //
             //DRAW CANVAS
             //
@@ -302,43 +426,22 @@ function myGameFunction() {
             //
             var bool = false;
             alphaFunc(myNewCanvas,bool);
-            //set VAR to 2
-            myShowDispVAR = 2;
             //
             //Additonal step to clear myVMCanvas canvas out of the way
             //
             myVMCTX.clearRect(0,0,myVMCanvas.width,myVMCanvas.height);
         }
+         //
+        // VM (4)
         //
-        //CASE 2
-        //
-        else{
-            var bool = true;
-            alphaFunc(myNewCanvas,bool);
-            //set VAR to 1
-            myShowDispVAR = 1;
-            //redraw
-            drawCellsFunc();
-            render();
-            
-        }
+        else if(myVal == 4){
+            //for Mesh
+            myNodeCanvas.width = 0;
+            myNodeCanvas.height = 0;
 
 
-    }
 
 
-    /////////////////////////////////////////////////////////////////////////
-    //Show VM
-    /////////////////////////////////////////////////////////////////////////
-    //Get Button
-    myShowVM = document.getElementsByName("myShowVM")[0];
-    var myShowVMVAR = 1;
-    myShowVM.onmousedown = function(e){
-        drawCellsFunc();
-        //
-        //Case 1
-        //
-        if (myShowVMVAR == 1){
             //
             //DRAW CANVAS
             //
@@ -361,61 +464,65 @@ function myGameFunction() {
             //
             var bool = false;
             alphaFunc(myNewCanvas,bool);
-            //set VAR to 2
-            myShowVMVAR = 2;
             //
             //Additonal step to clear myDispCanvas canvas out of the way
             //
             myDispCTX.clearRect(0,0,myDispCanvas.width,myDispCanvas.height);
-        }
-        //
-        //CASE 2
-        //
-        else{
-            var bool = true;
-            alphaFunc(myNewCanvas,bool);
-            //set VAR to 1
-            myShowVMVAR = 1;
-            //redraw
-            drawCellsFunc();
-            render();
-            
 
         }
-    }
+
+    });
 
 
-    /////////////////////////////////////////////////////////////////////////
-    //Show Nodes
-    /////////////////////////////////////////////////////////////////////////
+    ///////////////////////////
+    //Calculate button
+    ///////////////////////////////
 
-    var myShowNB = document.getElementsByName("myShowNB")[0];
-    var myNodeCanvas = document.getElementById("myNodeCanvas");
-    myNodeCanvas.width = 0;
-    myNodeCanvas.height = 0;
 
-    var myShowNBVAR = 1;
-    myShowNB.onmousedown = function (e){
+
+    $(function() {
+        var myBoolean = true;
+        $( "#myCalB" ).button()
         //
-        //CASE 1
+        .click(function(){ 
+            myCalculateFunction (myBoolean, myBoolean);
+        })
         //
-        if (myShowNBVAR == 1){
-            myNodeCanvas.width = myNewCanvas.width;
-            myNodeCanvas.height = myNewCanvas.height;
-            myPlotFrameFunc(myNodeCanvas, myNewCanvas, myDisp);
-            myShowNBVAR = 2;
-        }
-        //
-        //CASE 2
-        //
-        else{
-            myNodeCanvas.width = 0;
-            myNodeCanvas.height = 0;
-            myShowNBVAR = 1;
-        }
-    }
+        .mouseover(function(){
+            NProgress.configure({ parent: '#myProgressDiv' });
+            //NProgress.inc(0.3);
+            NProgress.configure({ minimum: 0.2});
+            var delay=50;
+            setTimeout(function(){
+                NProgress.start(); 
+                NProgress.inc(0.1);
+                myPrompt.value = "Calculating...";
+            },delay); 
+
+        });
+     });
+
+
+
+
+
+
     
+
+
+  
 }
+
+
+
+
+
+
+
+
+
+
+
 
 //Create off DOM canvas
 function createCanvas(width, height) {
@@ -443,7 +550,6 @@ function alphaFunc(myCanvas,bool){
     }
     //now draw the context using the adjusted values
     context.putImageData(imageData,0,0);
-    console.log("alpha changed");
 }
 //calculate density function
 function calDensityFunc(div, myDensityMatrix){
@@ -458,117 +564,35 @@ function calDensityFunc(div, myDensityMatrix){
 }
 
 
+function addOption(){
+   
+    var options = [];
 
+   // Clear the options first   
+   $("#stateMenu option").each(function(index, option) {
+        $(option).remove();
+   });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-    var myCanvas = window.__canvas = new fabric.Canvas("myCanvas",{width: 315,
-        height: 315,
-        isDrawingMode: true
-    });
-
-
-
-    //Pixel specific
-    var myDataLength = myCanvas.width * myCanvas.height;
-    myMatPer = document.getElementsByName("myMatPer")[0];
-    
-    
-
-    myBucket.value = 0.0;
-    //put initial guess to canvas
-    fabric.Image.fromURL(myImageURL, function(img) {
-        img.set({width: myCanvas.width, height: myCanvas.height, originX: 'left', originY: 'top'});
-        myCanvas.setBackgroundImage(img, myCanvas.renderAll.bind(myCanvas));
-        //get Mat density as the canvas is first populated
-        getMatFunc(myCanvas);
-        //record original here
-        myOriginalPer = myMatPer.value;
-    });
-    myCanvas.renderAll();
-    myCanvas.freeDrawingBrush.width = 20;
-    //myCanvas.on('mouse:down', function(options) {
-    //    console.log(options.e.clientX, options.e.clientY);
-    //});
-    myCanvas.on('mouse:move', function(options) {
-        //get material %
-        getMatFunc(myCanvas); 
-        //initial condition.. bucket is empty
-        if(myBucket.value == 0 & myDeleteFlag==false & myAddFlag==false ){
-            myCanvas.freeDrawingBrush.width = 0;
-            myPrompt.value = "bucket is empty!";
-        }
-        //user starts to delete or add stuff
-        else if(myDeleteFlag==true & myAddFlag==false) {
-            myCanvas.freeDrawingBrush.width = 20;
-            console.log("deleting material");
-            myPrompt.value = "delete material";
-        }
-        //myAddFlag == true 
-        else if (myAddFlag==true & myDeleteFlag==false & myBucket.value > 0 ){
-            myCanvas.freeDrawingBrush.width = 20;
-            console.log("adding material");
-            myPrompt.value = "add material";
-        }
-        else if (myBucket.value < 0){
-            myCanvas.freeDrawingBrush.width = 0;
-            myPrompt.value = "bucket is empty!";
-        }
-    });
-
-    myCanvas.on('mouse:down', function(options) {
-        //get value at mouse down
-        myOldPer = myMatPer.value;
-    });
-
-    Object.observe(myNewPer,myCalcFunc);
-    function myCalcFunc(changes){
-        //get value
-        var val = myNewPer[0] - myOldPer;
-        //if it is minus i.e. we are deleting material
-       if (  val < 0 ){
-        myBucketValue += (val*-1);
-       }
-       //else if zero or posotive i.e. we are adding material
-       else if ( val > 0 ) {
-            myBucketValue -= val;
-       }
-       myBucket.value = myBucketValue.toFixed(2);
-    } 
-
-    function getMatFunc(myCanvas){
-        var myBlack = 0;
-        var myMaterialPercentage = 0;
-        //get Pixel data  
-        var context = myCanvas.getContext('2d'),
-        imageData = context.getImageData(0, 0, myCanvas.width, myCanvas.height),
-        data = imageData.data;
-        //test RED 
-        for (var i = 0; i < data.length; i += 4) {
-            if (data[i] != 255){
-                myBlack += 1;
-            }
-        }
-        myMaterialPercentage = (myBlack/myDataLength) * 100;
-        myMatPer.value = myMaterialPercentage.toFixed(2);
-        myNewPer[0] = myMaterialPercentage;
+   //loop and populate
+   for (i = 0; i < myDensityMatrixContainer.length ; i++) {
+        options.push("<option value='" + i + "'>" + i + "</option>");
     }
 
-    */
+     //append after populating all options
+    $('#stateMenu').append(options.join("")).selectmenu();
+
+    $('#stateMenu').selectmenu('refresh');
+
+}
+
+function adjustDensityAndBar(){
+
+        var myDensity = calDensityFunc(div, myDensityMatrixContainer[myCurrentStateIndex]); 
+
+        //change bar reading
+        var bar = document.getElementsByClassName("bucket_inner")[0];
+        var val = (myDensity/(nelx*nely)*100).toFixed(1) + '%';
+        $(bar).animate({width: val}, 200);
+        myBucket.value = val;
+
+}

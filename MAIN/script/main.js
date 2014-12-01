@@ -50,7 +50,10 @@
             myTopScores.parentNode.removeChild(myTopScores);
             myToolsFunction();
             myGameFunction(); 
-            myCalculateFunction();
+            //This will calculate on the first time the game is opened
+            var myBoolean = true;
+            myCalculateFunction(myBoolean,myBoolean);
+
         }
         // }
     }
@@ -61,8 +64,7 @@
         var myTools = document.createElement("div");
         myTools.id = "myTools";
         myMainBody.appendChild(myTools);
-        myTools.innerHTML = myToolsString1 ;
-        myTools.innerHTML += myToolsString2 ;
+       // myTools.innerHTML = myToolsString2 ;
 
         /*
         myTools.onmouseover = function (e) {
@@ -82,11 +84,11 @@
     //
     //myTools String
     //
-    var myToolsString1 = " <input name='myCalculateB' type='submit' value='Calculate'><br><input name='myShowNB' type='submit' value='show Nodes'> <br><input name='myShowDisp' type='submit' value='show Disp'><br><input name='myShowVM' type='submit' value='show VM Stress'> <br>  <br> <input type='text' name='myMatPer' size='12'>  <br> Prompt <input type='text' name='myPrompt' size='20'>";
-    
-    var myToolsString2 = '<div id="myRadio"> <input type="radio" name="samename" id="Radio_Add"> Add </input> <br> <input type="radio" name="samename" id="Radio_Sub"> Subtract </input> <br> <input type="radio" name="samename" id="Radio_AddInc"> Add Incrementally </input> <br> <input type="radio" name="samename" id="Radio_SubInc"> Sub Incrementally </input>  </div> <br> <div class="bucket_outer"> <input id = "myBucket" type="text" name="myBucket" size="12"><div class="bucket_inner"> <div></div> </div> </div>';
 
+    //radio : <div id="myRadio"> <input type="radio" name="samename" id="Radio_Add"> Add </input> <br> <input type="radio" name="samename" id="Radio_Sub"> Subtract </input> <br> <input type="radio" name="samename" id="Radio_AddInc"> Add Incrementally </input> <br> <input type="radio" name="samename" id="Radio_SubInc"> Sub Incrementally </input>  </div>
 
+    //
+    //ui-button-text-only
 
 
 
