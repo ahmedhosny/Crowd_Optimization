@@ -48,7 +48,6 @@
             //remove stuff first x2
             myChallengeBoard.parentNode.removeChild(myChallengeBoard);
             myTopScores.parentNode.removeChild(myTopScores);
-            myToolsFunction();
             myGameFunction(); 
             //This will calculate on the first time the game is opened
             var myBoolean = true;
@@ -60,27 +59,7 @@
     //
     //myTools
     //
-    function myToolsFunction() {
-        var myTools = document.createElement("div");
-        myTools.id = "myTools";
-        myMainBody.appendChild(myTools);
-       // myTools.innerHTML = myToolsString2 ;
-
-        /*
-        myTools.onmouseover = function (e) {
-            myTools.style.width = "100px";
-            
-        }
-        myMainBody.onmouseover = function (e) {
-            myTools.style.width = "100px";
-            myTools.innerHTML = myToolsString ;
-        }
-        myMainBody.onmouseout = function (e) {
-            myTools.style.width = "0px";
-            myTools.innerHTML = "";
-        }
-        */
-    }
+   
     //
     //myTools String
     //

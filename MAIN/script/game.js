@@ -14,9 +14,11 @@ function myGameFunction() {
      <input type="radio" id="radio3" name="radio"  value="3"                 class="ui-helper-hidden-accessible"><label for="radio3" class=" ui-button ui-widget ui-state-default ui-button-text-only" role="button"><span class="ui-button-text">displacement</span></label>      \
      <input type="radio" id="radio4" name="radio"   value="4"                class="ui-helper-hidden-accessible"><label for="radio4" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right" role="button"><span class="ui-button-text">stress</span></label> </div>  \
      </form> </div> \
-     <br> <fieldset>  <select id="stateMenu">  </select> </fieldset>  \
-     <div id="bucketDiv" > <div class="bucket_outer"> <input id = "myBucket" type="text" name="myBucket" size="12"><div class="bucket_inner"> <div></div> </div> </div> </div> \
+     <fieldset>  <select id="stateMenu">  </select> </fieldset>  \
+     <div id="bucketDiv" > <div class="bucket_outer"> <input id = "myBucket" type="text" name="myBucket" size="12" readonly><div class="bucket_inner"> <div></div> </div> </div> </div> \
      <br> <br> <br> <br> <input id ="myPrompt" type="text" name="myPrompt" size="50" readonly>  \
+     <br><br><br><br><br><br> max disp : <input id = "myGuide" type="text" name="myGuide" size="12" readonly>  \
+     max vm : <input id = "myGuide1" type="text" name="myGuide1" size="12" readonly>  \
      </div> ' ;
 
 
@@ -72,6 +74,9 @@ function myGameFunction() {
     myVMCanvas.width = myNewCanvas.width;
     myVMCanvas.height = myNewCanvas.height;
     var myVMCTX= myVMCanvas.getContext('2d');
+    //
+    myGuide = document.getElementById("myGuide");
+    myGuide1 = document.getElementById("myGuide1");
     
 
 

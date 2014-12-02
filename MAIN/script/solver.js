@@ -12,7 +12,7 @@ var myDensityMatrixContainer = [];
 myDensityMatrixContainer.push(myDensityMatrix);
 /////////// 
 var penal = 3;
-var E = 0.5, nu = 0.3;
+var E = 1.0, nu = 0.3;
 var myDensity2Array = [];
 var F = math.zeros(2*(nelx+1)*(nely+1) , 1);
 var U = math.zeros(2*(nely+1)*(nelx+1) , 1);
@@ -26,10 +26,15 @@ var myElementVMStress = [];
 var myVMColorArray = [];
 var myPrompt;
 var myBucket;
+var myGuide;
+var myGuide1;
 //
 var myCurrentStateIndex = 0;
 //Flags
 var myDuplicateFlag = false;
+//
+var myMaxDisp = 0.0;
+var myMaxVM = 0.0;
 
 
 //
@@ -207,13 +212,6 @@ function myBCFunc (nelx,nely,F){
     
     
     F = math.subset(F, math.index(myIndex-1, 0), -1);
-    F = math.subset(F, math.index(myIndex-3, 0), -1);
-    F = math.subset(F, math.index(myIndex-5, 0), -1);
-
-
-
-
-
 
 
     /////////F/////////
@@ -223,6 +221,9 @@ function myBCFunc (nelx,nely,F){
     var allDOF = _.range(2*(nely+1)*(nelx+1));
     //diff big - small
     var freeDOF = _.difference(allDOF,fixedDOF);
+    //console.log(F);
+    //console.log(fixedDOF);
+    //console.log(freeDOF)
     return [F,fixedDOF,freeDOF];
 }
 //
@@ -374,6 +375,11 @@ function myCalculateFunction (myBoolean, myBoolean2){
     myDisp = [];
     myDisp = mySolver(nelx,nely,x,penal,myKE,U);
     //console.log(myDisp);
+    //get disp from vector
+    myUList = XYtoVectorFunc(myDisp);
+    myMaxDisp = _.max(myUList) ;
+    //console.log(myMaxDisp);
+    myGuide.value = myMaxDisp;
     //populate myDispColorArray 
     
     VisDispFunc(myDisp);
@@ -384,6 +390,8 @@ function myCalculateFunction (myBoolean, myBoolean2){
     myElementVMStress = [];
     myStrainFunc();
     //console.log(myElementVMStress);
+    myMaxVM = _.max(myElementVMStress);
+    myGuide1.value = myMaxVM;
     //Do somthing with strain
     VisVMFunc(myElementVMStress);
 
@@ -397,7 +405,7 @@ function myCalculateFunction (myBoolean, myBoolean2){
 
         //Add to container
         myDensityMatrixContainer.push(x);
-        console.log(myDensityMatrixContainer);
+        //console.log(myDensityMatrixContainer);
 
         //change options in stateMenu
         addOption();
@@ -435,4 +443,17 @@ function myVonMises(vector){
         //\sigma_v = \sqrt{\sigma_1^2- \sigma_1\sigma_2+ \sigma_2^2+3\sigma_{12}^2}
     var VonMises = math.sqrt( math.pow(S1,2) - S1*S2 + math.pow(S2,2) + 3*math.pow(S12,2) );
     return VonMises;
+}
+
+//convert XY disp to vector
+function XYtoVectorFunc (U){
+    //Build a canvas that is nelx+1 and nely+1 pixels wide and high
+    //get vector using Pythagoras
+    var myUList = [];
+    for (var i = 0 ; i < U.length ; i+=2){
+        var A = U[i], B = U[i+1];
+        var C = math.sqrt(math.pow(A,2) + math.pow(B,2));
+        myUList.push(C);
+    }
+    return myUList;
 }
