@@ -3,6 +3,7 @@
 //
 ///////////
 var div = 7;
+var wholeDim = 315;
 var myNewCanvas;
 var nelx = div;
 var nely = div;
@@ -16,7 +17,7 @@ var E = 1.0, nu = 0.3;
 var myDensity2Array = [];
 var F = math.zeros(2*(nelx+1)*(nely+1) , 1);
 var U = math.zeros(2*(nely+1)*(nelx+1) , 1);
-var myEDOFList = [];
+
 var myDispColorArray = [];
 var myECoor = [];
 var myNIndex = [];
@@ -28,6 +29,7 @@ var myPrompt;
 var myBucket;
 var myGuide;
 var myGuide1;
+var myGuide2;
 //
 var myCurrentStateIndex = 0;
 //Flags
@@ -35,7 +37,8 @@ var myDuplicateFlag = false;
 //
 var myMaxDisp = 0.0;
 var myMaxVM = 0.0;
-
+var myCompliance = 0.0;
+var myScores = []
 
 //
 //
@@ -49,7 +52,7 @@ function elementDensityFunc(myDensityMatrix,div){
             var myDensity =  math.subset(myDensityMatrix, math.index(i, j));
             //check is zero
             if (myDensity == 0){
-                myDensityMatrix = math.subset(myDensityMatrix, math.index(i, j), 0.001); 
+                myDensityMatrix = math.subset(myDensityMatrix, math.index(i, j), 0.00000001); 
             }
         }
     }
@@ -60,6 +63,9 @@ function elementDensityFunc(myDensityMatrix,div){
 //
 function KE(E,nu){
 var k=[ 1/2-nu/6 ,  1/8+nu/8 , -1/4-nu/12 , -1/8+3*nu/8 , -1/4+nu/12 , -1/8-nu/8 , nu/6 , 1/8-3*nu/8];
+
+
+
 var temp = math.matrix([[k[0] , k[1] , k[2] , k[3] , k[4] , k[5] , k[6] , k[7]],
                         [k[1] , k[0] , k[7] , k[6] , k[5] , k[4] , k[3] , k[2]],
                         [k[2] , k[7] , k[0] , k[5] , k[6] , k[3] , k[4] , k[1]],
@@ -72,6 +78,11 @@ var temp = math.matrix([[k[0] , k[1] , k[2] , k[3] , k[4] , k[5] , k[6] , k[7]],
 
 var myK = math.multiply(E/(1-Math.pow(nu,2)),temp);
 //math.subset(myK, math.index(1, 0)); r then c
+
+
+
+
+
 return myK;
 }
 //
@@ -87,12 +98,10 @@ function mySolver(nelx,nely,x,penal,KE,U){
             var n1 = (nely+1)*(i-1)+j;
             var n2 = (nely+1)* i   +j;
             var edof = [2*n1-2, 2*n1-1, 2*n2-2, 2*n2-1, 2*n2, 2*n2+1, 2*n1, 2*n1+1];
-            //myEDOFList
-            myTempVec = [];
-            for (var z = 0 ; z < edof.length ; z++){
-                myTempVec.push(edof[z])
-            }
-            myEDOFList.push(myTempVec)
+
+
+            //lets populate K here
+
             //
             var myKSub = []; //8x8 matrix subset from K
             for (var k = 0 ; k < edof.length ; k++){
@@ -103,35 +112,35 @@ function mySolver(nelx,nely,x,penal,KE,U){
                 }
                 myKSub.push(myLine);
             }  
-            //   
+
+            //    
             //now we can use myKsub  
             var myKsubM = math.matrix(myKSub);
             //get x at current element
-            var temp1 = math.subset(x, math.index(i-1, j-1)); 
+            var temp1 = math.subset(x, math.index(j-1, i-1)); 
             //raise that to the penal
             var temp2 = math.pow(temp1,penal);
             //multiply that to KE
             var temp3 = math.multiply(temp2,KE);
-            //add that to myKsubM
-            var temp4 = math.add(myKsubM,temp3);
+
             //
             //now return temp4 into K
             for (var n = 0 ; n < edof.length ; n++){
                 for (var p = 0 ; p < edof.length ; p++){
-                    //get value to add
-                    var myAdd = math.subset(temp4, math.index(n, p));
+                    //get value to add / picking here dosnt matter as the matrix is symmentrical
+                    var myAdd = math.subset(temp3, math.index(p, n));
                     //get original value
-                    var myValue = math.subset(K, math.index(edof[n], edof[p]));
+                    var myValue = math.subset(K, math.index(edof[p], edof[n]));
                     //add both to one another
-                    var myFinal = math.add(myValue,myAdd);
+                    var myFinal = myValue + myAdd;
                     //replace myFinal in K
-                    K = math.subset(K, math.index(edof[n], edof[p]), myFinal); 
+                    K = math.subset(K, math.index(edof[p], edof[n] ), myFinal); 
                 }
             } 
+
         }
     }
     //now K is populated...
-
     //get free and fixed dofs + new F
     var DOF = myBCFunc (nelx,nely,F),
         fixedDOF = DOF[1],
@@ -198,20 +207,15 @@ function myBCFunc (nelx,nely,F){
     //cantileverd beam
     //replace value in F
     var myIndex = math.size(F)._data[0];
-    /*
+
     F = math.subset(F, math.index(myIndex-1, 0), -1);
-    F = math.subset(F, math.index(myIndex-3, 0), -1);
-    F = math.subset(F, math.index(myIndex-5, 0), -1);
-    F = math.subset(F, math.index(myIndex-7, 0), -1);
-    F = math.subset(F, math.index(myIndex-9, 0), -1);
-    F = math.subset(F, math.index(myIndex-11, 0), -1);
-    F = math.subset(F, math.index(myIndex-13, 0), -1);
-    F = math.subset(F, math.index(myIndex-15, 0), -1);
-    */
+
+  
     /////////F/////////
     
     
-    F = math.subset(F, math.index(myIndex-1, 0), -1);
+    //F = math.subset(F, math.index(myIndex-1, 0), -1);
+
 
 
     /////////F/////////
@@ -368,18 +372,27 @@ function myCalculateFunction (myBoolean, myBoolean2){
     var myKE = KE(E,nu);
     //  get x
     var x = elementDensityFunc(myDensityMatrixContainer[myCurrentStateIndex],div);
-    //console.log("this is x");
-    //console.log(x._data);
+
     
     // solver
     myDisp = [];
     myDisp = mySolver(nelx,nely,x,penal,myKE,U);
-    //console.log(myDisp);
+
+
+
+    //Calculate compliance
+    complainceFunc(F,myDisp);
+    
+
+    //  exagerate the displacement
+    myDisp = myDisp.map( function(item) { return item * 5; } );
+
+    //
     //get disp from vector
     myUList = XYtoVectorFunc(myDisp);
     myMaxDisp = _.max(myUList) ;
     //console.log(myMaxDisp);
-    myGuide.value = myMaxDisp;
+    
     //populate myDispColorArray 
     
     VisDispFunc(myDisp);
@@ -391,14 +404,23 @@ function myCalculateFunction (myBoolean, myBoolean2){
     myStrainFunc();
     //console.log(myElementVMStress);
     myMaxVM = _.max(myElementVMStress);
-    myGuide1.value = myMaxVM;
+    
     //Do somthing with strain
     VisVMFunc(myElementVMStress);
+
+    //
+
+
+    myScores.push([myMaxDisp,myMaxVM,parseFloat(myCompliance)]);
+    console.log(myScores);
+    calculateScore();
+    //
 
     NProgress.done();
     //get time again
     var myTime2 = new Date().getTime();
     var myDuration = (myTime2 - myTime1)/1000;
+
     console.log("Time to compute " , myDuration , "seconds");
     myPrompt.value = "Done!";
     if(myBoolean){
@@ -456,4 +478,56 @@ function XYtoVectorFunc (U){
         myUList.push(C);
     }
     return myUList;
+}
+
+//Calculate compliance , F is matrix, U is array (use myDisp)
+function complainceFunc(F,U){
+    //convert F to transpose
+    var FT = math.transpose(F); 
+    //console.log(FT);
+    //create matrix from U
+    var myUMatrix = math.matrix(U);
+    //console.log(myUMatrix);
+    //multiply them
+    myCompliance = math.multiply(FT,myUMatrix);
+    myCompliance = myCompliance.toFixed(7);
+    //console.log(myCompliance);
+}
+function calculateScore(){
+    //only it is not the first time this runs (it has two items or more)
+    if (myScores.length > 1){
+        //for Disp
+        var myDispNew = 100*(myScores[myScores.length-1][0]-myScores[0][0])/myScores[0][0]
+        if (myDispNew >= 0){
+            myGuide.value = "+ " + Math.round(myDispNew*100)/100 + " %";
+        }
+        else{
+            myGuide.value =  "- " + Math.round(myDispNew*100)/100 + " %";
+        }
+        //for VM
+        var myVMNew = 100*(myScores[myScores.length-1][1]-myScores[0][1])/myScores[0][1]
+        if (myVMNew >= 0){
+            myGuide1.value = "+ " + Math.round(myVMNew*100)/100 + " %";
+        }
+        else{
+            myGuide1.value =  "- " + Math.round(myVMNew*100)/100 + " %";
+        }
+        //for Compliance
+        var myComplianceNew = 100*(myScores[myScores.length-1][2]-myScores[0][2])/myScores[0][2]
+        if (myComplianceNew >= 0){
+            myGuide2.value = "+ " + Math.round(myComplianceNew*100)/100 + " %";
+        }
+        else{
+            myGuide2.value =  "- " + Math.round(myComplianceNew*100)/100 + " %";
+        } 
+    }
+    else{
+
+        myGuide.value = Math.round(myMaxDisp*100)/100;
+        myGuide1.value = Math.round(myMaxVM*100)/100;
+        myGuide2.value = Math.round(myCompliance*100)/100;
+    }
+
+
+
 }

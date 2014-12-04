@@ -2,14 +2,20 @@
 var express = require('express');
 var app=express();
 var http=require('http');
-var myXMatrix = [[0.8,0.8,0.8,0.8,0.8,0.8,0.8],
-                  [0.8,0.8,0.8,0.8,0.8,0.8,0.8],
-                  [0.8,0.8,0.8,0.8,0.8,0.8,0.8],
-                  [0.8,0.8,0.8,0.8,0.8,0.8,0.8],
-                  [0.8,0.8,0.8,0.8,0.8,0.8,0.8],
-                  [0.8,0.8,0.8,0.8,0.8,0.8,0.8],
-                  [0.8,0.8,0.8,0.8,0.8,0.8,0.8]
+
+
+var myXMatrix = [[1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                  [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                  [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                  [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                  [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                  [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                  [1.0,1.0,1.0,1.0,1.0,1.0,1.0]
                   ];
+                 
+
+//var myXMatrix = [[1,0.6],[1,0.6]];
+                  
 
 app.use(express.static(__dirname + '/public'));
 
@@ -21,7 +27,6 @@ var server = app.listen(process.env.PORT || 1337, function() {
 //................................Socket.io
 //initialize socket.io to listen to the same server as express
 var io = require('socket.io').listen(server);
-
 
 io.sockets.on('connection', function (socket) {
   console.log("CONNECTION");

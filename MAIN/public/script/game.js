@@ -18,10 +18,13 @@ function myGameFunction() {
      </form> </div> \
      <fieldset>  <select id="stateMenu">  </select> </fieldset>  \
      <div id="bucketDiv" > <div class="bucket_outer"> <input id = "myBucket" type="text" name="myBucket" size="12" readonly><div class="bucket_inner"> <div></div> </div> </div> </div> \
-     <br> <br> <br> <br> <input id ="myPrompt" type="text" name="myPrompt" size="50" readonly>  \
-     <br><br><br><br><br><br> max disp : <input id = "myGuide" type="text" name="myGuide" size="12" readonly>  \
-     max vm : <input id = "myGuide1" type="text" name="myGuide1" size="12" readonly>  \
-     </div> ' ;
+     <input id ="myPrompt" type="text" name="myPrompt" size="50" readonly>  \
+     </div> \
+     <div id="myScore"> \
+     Max Displacement <br> <input id = "myGuide" type="text" name="myGuide" size="12" readonly> <br><br>  \
+     Max VonMises <br> <input id = "myGuide1" type="text" name="myGuide1" size="12" readonly> <br><br> \
+     Compliance <br> <input id = "myGuide2" type="text" name="myGuide2" size="12" readonly> \
+     </div>' ;
 
 
 
@@ -42,8 +45,8 @@ function myGameFunction() {
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
     myNewCanvas = document.getElementById('myNewCanvas');
-    myNewCanvas.width = 315;
-    myNewCanvas.height = 315;
+    myNewCanvas.width = wholeDim;
+    myNewCanvas.height = wholeDim;
     var ctx = myNewCanvas.getContext('2d'), tileWidth, tileHeight;
     //Radio buttons
     //Get radio buttons
@@ -73,6 +76,7 @@ function myGameFunction() {
     //
     myGuide = document.getElementById("myGuide");
     myGuide1 = document.getElementById("myGuide1");
+    myGuide2 = document.getElementById("myGuide2");
     
 
     //////////////////
@@ -136,7 +140,7 @@ function myGameFunction() {
                     break;
                 }
                 //now draw a rect
-                ctx.fillRect(i * tileWidth, j * tileHeight, tileWidth, tileHeight);
+                ctx.fillRect(j * tileWidth, i * tileHeight, tileWidth, tileHeight);
                 //if current selection is also populated
                 /*
                 if( math.subset(myDensityMatrix, math.index(i, j)) <= 1  && i == xIndex && j == yIndex){
@@ -162,6 +166,8 @@ function myGameFunction() {
         //2_Draw grid
         render();
         //
+        adjustDensityAndBar();
+
         console.log("client got newX");
     });
 
@@ -235,10 +241,6 @@ function myGameFunction() {
 
     myNewCanvas.onmousedown = function (e){
 
-
-
-
-
         var rect = myNewCanvas.getBoundingClientRect(),
         mx = e.clientX - rect.left,
         my = e.clientY - rect.top,
@@ -252,7 +254,7 @@ function myGameFunction() {
         if (e.which == 1 && cntrlIsPressed==false) { 
             // Radio_Add.checked = true;
             // fill the myDensityMatrix with number one
-            myDensityMatrixContainer[myCurrentStateIndex]= math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex), 1); 
+            myDensityMatrixContainer[myCurrentStateIndex]= math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index( yIndex,xIndex), 1); 
             myPrompt.value = "Material added.";
 
         }
@@ -263,7 +265,7 @@ function myGameFunction() {
         else if (e.which == 3 && cntrlIsPressed==false) {
             //Radio_Sub.checked = true;
             // fill the myDensityMatrix with number one
-            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex), 0); 
+            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ), 0); 
             myPrompt.value = "Material subtracted.";
         }
         //////////////////////////////
@@ -273,7 +275,7 @@ function myGameFunction() {
         else if (e.which == 1 && cntrlIsPressed) {
             //Radio_AddInc.checked = true;
             //Get value at that index
-            var myCurrentVal = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex));
+            var myCurrentVal = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ));
             var myNewVal;
             //Value to substitute
             if(myCurrentVal <= 0.8){
@@ -283,7 +285,7 @@ function myGameFunction() {
                 myNewVal = 1.0; 
             }
             // fill the myDensityMatrix with number one
-            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex), myNewVal); 
+            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ), myNewVal); 
             myPrompt.value = "Material added.";
         }
         //////////////////////////////
@@ -293,7 +295,7 @@ function myGameFunction() {
         else if (e.which == 3 && cntrlIsPressed) { 
             //Radio_SubInc.checked = true;
             //Get value at that index
-            var myCurrentVal = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex));
+            var myCurrentVal = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ));
             var myNewVal;
             //Value to substitute
             if(myCurrentVal >= 0.2){
@@ -303,7 +305,7 @@ function myGameFunction() {
                 myNewVal = 0.0; 
             }
             // fill the myDensityMatrix with number one
-            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(xIndex, yIndex), myNewVal);
+            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ), myNewVal);
             myPrompt.value = "Material subtracted."; 
         }
 
@@ -319,6 +321,8 @@ function myGameFunction() {
         socket.emit("userClicked",{data:myDensityMatrixContainer[myCurrentStateIndex]});
         console.log("userNewX");
 
+        console.log("here you go sid");
+        console.log(myDensityMatrixContainer[myCurrentStateIndex]._data);
 
     }
     
@@ -378,13 +382,9 @@ function myGameFunction() {
         var myBoolean = false;
         myCalculateFunction(myBoolean, myBoolean);
 
-
-
-
-
-
         //Now adjust myDensity and Bar
         ////////////////////////////
+
 
     });
 

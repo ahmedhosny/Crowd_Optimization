@@ -1,4 +1,7 @@
-var socket=io('http://127.0.0.1:1337');
+//line st
+var socket=io('http://10.251.81.238:1337');
+//self
+//var socket=io('http://127.0.0.1:1337');
 
 
 //$(document).ready(
