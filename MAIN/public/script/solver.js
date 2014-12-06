@@ -49,17 +49,20 @@ var myGuide2;
 var myCurrentStateIndex = 0;
 //Flags
 var myDuplicateFlag = false;
+var myStressFlag = false;
+var myDispFlag = false;
+var myMeshFlag = false;
 //
 var myMaxDisp = 0.0;
 var myMaxVM = 0.0;
 var myCompliance = 0.0;
-var myScores = []
+var myScores = [];
+var myScoresPer = []; // for display within states
 
 //
 //
 //
 function elementDensityFunc(myDensityMatrix,div){
-
     //loop through matrix and check if value is zero
     for (var i = 0 ; i < div  ; i++){
         for (var j = 0 ; j < div ; j++){
@@ -67,7 +70,7 @@ function elementDensityFunc(myDensityMatrix,div){
             var myDensity =  math.subset(myDensityMatrix, math.index(i, j));
             //check is zero
             if (myDensity == 0){
-                myDensityMatrix = math.subset(myDensityMatrix, math.index(i, j), 0.00000001); 
+                myDensityMatrix = math.subset(myDensityMatrix, math.index(i, j), 0.001); 
             }
         }
     }
@@ -400,7 +403,6 @@ function myCalculateFunction (myBoolean, myBoolean2){
     var myKE = KE(E,nu);
     //  get x
     var x = elementDensityFunc(myDensityMatrixContainer[myCurrentStateIndex],div);
-
     
     // solver
     myDisp = [];
@@ -413,7 +415,7 @@ function myCalculateFunction (myBoolean, myBoolean2){
     
 
     //  exagerate the displacement
-    myDisp = myDisp.map( function(item) { return item * 5; } );
+     myDisp = myDisp.map( function(item) { return item * 5; } );
 
     //
     //get disp from vector
@@ -441,6 +443,7 @@ function myCalculateFunction (myBoolean, myBoolean2){
 
     myScores.push([myMaxDisp,myMaxVM,parseFloat(myCompliance)]);
     console.log(myScores);
+    //Here myGuide, myGuide1 and myGuide2 will all be set
     calculateScore();
     //
 
@@ -451,6 +454,8 @@ function myCalculateFunction (myBoolean, myBoolean2){
 
     console.log("Time to compute " , myDuration , "seconds");
     myPrompt.value = "Done!";
+
+    //only if calculate button clicked
     if(myBoolean){
 
         //Add to container
@@ -527,35 +532,36 @@ function calculateScore(){
         //for Disp
         var myDispNew = 100*(myScores[myScores.length-1][0]-myScores[0][0])/myScores[0][0]
         if (myDispNew >= 0){
-            myGuide.value = "+ " + Math.round(myDispNew*100)/100 + " %";
+            myGuide.value = "+" + Math.round(myDispNew*100)/100 + "%";
         }
         else{
-            myGuide.value =  Math.round(myDispNew*100)/100 + " %";
+            myGuide.value =  Math.round(myDispNew*100)/100 + "%";
         }
         //for VM
         var myVMNew = 100*(myScores[myScores.length-1][1]-myScores[0][1])/myScores[0][1]
         if (myVMNew >= 0){
-            myGuide1.value = "+ " + Math.round(myVMNew*100)/100 + " %";
+            myGuide1.value = "+" + Math.round(myVMNew*100)/100 + "%";
         }
         else{
-            myGuide1.value =   Math.round(myVMNew*100)/100 + " %";
+            myGuide1.value =   Math.round(myVMNew*100)/100 + "%";
         }
         //for Compliance
         var myComplianceNew = 100*(myScores[myScores.length-1][2]-myScores[0][2])/myScores[0][2]
         if (myComplianceNew >= 0){
-            myGuide2.value = "+ " + Math.round(myComplianceNew*100)/100 + " %";
+            myGuide2.value = "+" + Math.round(myComplianceNew*100)/100 + "%";
         }
         else{
-            myGuide2.value =  Math.round(myComplianceNew*100)/100 + " %";
+            myGuide2.value =  Math.round(myComplianceNew*100)/100 + "%";
         } 
+        // push to myScoresPer
+        myScoresPer.push([myGuide.value, myGuide1.value, myGuide2.value]);
     }
     else{
-
         myGuide.value = Math.round(myMaxDisp*100)/100;
         myGuide1.value = Math.round(myMaxVM*100)/100;
         myGuide2.value = Math.round(myCompliance*100)/100;
+        // push to myScoresPer
+        myScoresPer.push([myGuide.value, myGuide1.value, myGuide2.value]);
     }
-
-
 
 }

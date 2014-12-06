@@ -29,7 +29,7 @@ var server = app.listen(process.env.PORT || 1337, function() {
 var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (socket) {
-  console.log("CONNECTION");
+  console.log("connection established");
 
   //////////////////////////////////////////////////////////////
 
@@ -66,7 +66,7 @@ io.sockets.on('connection', function (socket) {
         socket.user=u;
       }
       else {
-        socket.emit("loginFailed", {error:"password mismatch"});
+        socket.emit("loginFailed", {error:"wrong password"});
       }
     }
     else {
@@ -75,7 +75,7 @@ io.sockets.on('connection', function (socket) {
       socket.user=u;
       socket.emit("loggedin", userpacket);        
       socket.broadcast.emit("userJoined", userpacket);
-      console.log("you got it sid!");
+      console.log("loggedin", userpacket);
     }
   });
 
@@ -87,6 +87,7 @@ io.sockets.on('connection', function (socket) {
         u.socket=null;
         var userpacket={id:u.id};
         socket.broadcast.emit("userLeft", userpacket);
+        console.log("userLeft", userpacket);
       }
   });
 ///////////////////////

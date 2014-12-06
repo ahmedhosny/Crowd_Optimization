@@ -870,7 +870,7 @@ body .ui-tooltip {
 	border: 1px solid #d3d3d3;
 	background: #e6e6e6 url("images/ui-bg_glass_75_e6e6e6_1x400.png") 50% 50% repeat-x;
 	font-weight: normal;
-	color: #555555;
+	color: #000;
 }
 .ui-state-default a,
 .ui-state-default a:link,
@@ -884,10 +884,10 @@ body .ui-tooltip {
 .ui-state-focus,
 .ui-widget-content .ui-state-focus,
 .ui-widget-header .ui-state-focus {
-	border: 1px solid #999999;
+	border: 1px solid #d43939;
 	background: #dadada url("images/ui-bg_glass_75_dadada_1x400.png") 50% 50% repeat-x;
 	font-weight: normal;
-	color: #212121;
+	color: #d43939;
 }
 .ui-state-hover a,
 .ui-state-hover a:hover,

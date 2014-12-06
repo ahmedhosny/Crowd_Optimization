@@ -81,8 +81,8 @@ function myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp){
 	//two states = before and after
 	//set dims of myNodeCanvas to original canvas
     //Set width and height
-    myNodeCanvas.width = myCanvas.width+50;// add right and left
-    myNodeCanvas.height = myCanvas.height+50;// add top and bottom
+    myNodeCanvas.width = myCanvas.width+160	;// add right and left
+    myNodeCanvas.height = myCanvas.height+160;// add top and bottom
     //Get context and draw circles...
     var radius = 3;
 	var context = myNodeCanvas.getContext('2d');
@@ -94,21 +94,23 @@ function myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp){
 	//
 	for (var i = 0 ; i < nelx + 1 ; i++){
 		for (var j = 0 ; j < nely + 1 ; j++){
+
+
 			//draw nodes
 			context.beginPath();
-			context.arc(i*dx , j*dy , radius, 0, 2 * Math.PI, false);
+			context.arc(i*dx + 80  , j*dy + 80 , radius, 0, 2 * Math.PI, false);
 			context.fillStyle = '#e0cab1';
 			context.fill();
 			context.strokeStyle = '#e0cab1';
 			//Draw edges vertical
 			if(j<nely){
-      			context.moveTo(i*dx, j*dy);
-      			context.lineTo(i*dx, (j+1)*dy);
+      			context.moveTo(i*dx + 80, j*dy + 80);
+      			context.lineTo(i*dx + 80, (j+1)*dy + 80);
 			}
 			//Draw edges horizontal
 			if(i<nelx){
-      			context.moveTo(i*dx, j*dy);
-      			context.lineTo((i+1)*dx, j*dy);
+      			context.moveTo(i*dx + 80, j*dy + 80);
+      			context.lineTo((i+1)*dx + 80, j*dy + 80);
 			}
 			context.stroke();
 		}
@@ -132,19 +134,19 @@ function myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp){
 		for (var i = 0 ; i < nelx + 1 ; i++){
 			for (var j = 0 ; j < nely + 1 ; j++){
 				context.beginPath();
-				context.arc(i*dx + myDispAdjA[i][j][0], j*dy + myDispAdjA[i][j][1]*(-1), radius, 0, 2 * Math.PI, false);
+				context.arc(i*dx + myDispAdjA[i][j][0] + 80, j*dy + myDispAdjA[i][j][1]*(-1) + 80, radius, 0, 2 * Math.PI, false);
 				context.fillStyle = '#d43939';
 				context.fill();
 				context.strokeStyle = '#d43939';
 				//Draw edges vertical
 				if(j<nely){
-	      			context.moveTo(i*dx + myDispAdjA[i][j][0], j*dy + myDispAdjA[i][j][1]*(-1));
-	      			context.lineTo(i*dx + myDispAdjA[i][j+1][0], (j+1)*dy + myDispAdjA[i][j+1][1]*(-1));
+	      			context.moveTo(i*dx + myDispAdjA[i][j][0] + 80, j*dy + myDispAdjA[i][j][1]*(-1) + 80);
+	      			context.lineTo(i*dx + myDispAdjA[i][j+1][0] + 80, (j+1)*dy + myDispAdjA[i][j+1][1]*(-1) + 80);
 				}
 				//Draw edges horizontal
 				if(i<nelx){
-	      			context.moveTo(i*dx + myDispAdjA[i][j][0], j*dy + myDispAdjA[i][j][1]*(-1));
-	      			context.lineTo((i+1)*dx + myDispAdjA[i+1][j][0], j*dy + myDispAdjA[i+1][j][1]*(-1));
+	      			context.moveTo(i*dx + myDispAdjA[i][j][0] + 80, j*dy + myDispAdjA[i][j][1]*(-1)+ 80);
+	      			context.lineTo((i+1)*dx + myDispAdjA[i+1][j][0] + 80, j*dy + myDispAdjA[i+1][j][1]*(-1) + 80);
 				}
 				context.stroke();
 			}
