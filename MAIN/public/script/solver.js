@@ -1,9 +1,24 @@
 //
 //Variables
 //
-///////////
+///////////////////////////////////////////////////
+///////////////////////////////////////////////////
+///////////////////////////////////////////////////
+// green #09b39c
+// beige #e0cab1
+// red #d43939
 var div = 7;
 var wholeDim = 315;
+//[column,row]
+var mySupport = [[2,0],[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1]];
+var myForce = [[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7]];
+var myForceMag = -1;
+var myForceDir = 'y';
+// change myBCsvg
+// change initial matrix in app
+///////////////////////////////////////////////////
+///////////////////////////////////////////////////
+///////////////////////////////////////////////////
 var myNewCanvas;
 var nelx = div;
 var nely = div;
@@ -206,22 +221,35 @@ function mySolver(nelx,nely,x,penal,KE,U){
 function myBCFunc (nelx,nely,F){
     //cantileverd beam
     //replace value in F
-    var myIndex = math.size(F)._data[0];
+   // var myIndex = math.size(F)._data[0];
 
-    F = math.subset(F, math.index(myIndex-1, 0), -1);
+
+   // F = math.subset(F, math.index(myIndex-1, 0), myForceDir);
 
   
     /////////F/////////
     
-    
-    //F = math.subset(F, math.index(myIndex-1, 0), -1);
+    for (var i = 0 ; i < myForce.length ; i++){
+        if (myForceDir == 'y'){
+            var index = myForce[i][0]*(nelx+1)*2 + (myForce[i][1]*2) + 1;
+            F = math.subset(F, math.index(index, 0), myForceMag);
+        }
+        else{
+            var index = myForce[i][0]*(nelx+1)*2 + (myForce[i][1]*2);
+            F = math.subset(F, math.index(index, 0), myForceMag);
+        }
+    }
 
-
-
-    /////////F/////////
+    console.log(_.flatten(F._data, false));
     
     //supports (simple arrays)
-    var fixedDOF = _.range((nelx +1) * 2);
+    //get fixed dofs from mySupport
+    var fixedDOF = []
+    for (var i = 0; i < mySupport.length ; i++){
+        fixedDOF.push(mySupport[i][0]*(nelx+1)*2 + mySupport[i][1]*2);
+        fixedDOF.push(mySupport[i][0]*(nelx+1)*2 + (mySupport[i][1]*2) + 1);
+    }
+
     var allDOF = _.range(2*(nely+1)*(nelx+1));
     //diff big - small
     var freeDOF = _.difference(allDOF,fixedDOF);
@@ -502,7 +530,7 @@ function calculateScore(){
             myGuide.value = "+ " + Math.round(myDispNew*100)/100 + " %";
         }
         else{
-            myGuide.value =  "- " + Math.round(myDispNew*100)/100 + " %";
+            myGuide.value =  Math.round(myDispNew*100)/100 + " %";
         }
         //for VM
         var myVMNew = 100*(myScores[myScores.length-1][1]-myScores[0][1])/myScores[0][1]
@@ -510,7 +538,7 @@ function calculateScore(){
             myGuide1.value = "+ " + Math.round(myVMNew*100)/100 + " %";
         }
         else{
-            myGuide1.value =  "- " + Math.round(myVMNew*100)/100 + " %";
+            myGuide1.value =   Math.round(myVMNew*100)/100 + " %";
         }
         //for Compliance
         var myComplianceNew = 100*(myScores[myScores.length-1][2]-myScores[0][2])/myScores[0][2]
@@ -518,7 +546,7 @@ function calculateScore(){
             myGuide2.value = "+ " + Math.round(myComplianceNew*100)/100 + " %";
         }
         else{
-            myGuide2.value =  "- " + Math.round(myComplianceNew*100)/100 + " %";
+            myGuide2.value =  Math.round(myComplianceNew*100)/100 + " %";
         } 
     }
     else{

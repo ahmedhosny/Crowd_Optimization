@@ -6,7 +6,7 @@ function myGameFunction() {
     myGame.id = "myGame";
     //append myChallengeBoard
     myMainBody.appendChild(myGame);
-    myGame.innerHTML = "      <myGame oncontextmenu='return false;'>  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myNewCanvas'> </canvas>  <canvas id='myNodeCanvas'> </canvas> <div id='myProgressDiv'> </div>";
+    myGame.innerHTML = "      <myGame oncontextmenu='return false;'>  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myNewCanvas'> </canvas>  <canvas id='myNodeCanvas'> </canvas> <svg id='myBCsvg'> </svg> <div id='myProgressDiv'> </div>";
     var myRadioString =  ' <div id="myToolBar" >  \
     <div id="myCalB" class="ui-button ui-widget ui-state-default ui-corner-all" role="button"><span class="ui-icon ui-icon-calculator"></span></div> \
     <div id="myRadioDiv">  \
@@ -73,6 +73,38 @@ function myGameFunction() {
     myVMCanvas.width = myNewCanvas.width;
     myVMCanvas.height = myNewCanvas.height;
     var myVMCTX= myVMCanvas.getContext('2d');
+
+   
+
+
+    ///////////////////////////////////////////
+    //BC visualization on svg
+    //////////////////////////////////////////
+    var s = Snap('#myBCsvg');
+    //draw supports
+    var dx = myNewCanvas.width / div;
+    for (var i = 0 ; i < mySupport.length ; i++){  
+        var supportCircle = s.circle(mySupport[i][0] * dx + 20 , mySupport[i][1] * dx + 20 , 8);
+        supportCircle.attr({
+        fill: "#09b39c",
+        stroke: "#000",
+        strokeWidth: 3
+        });
+    }
+    //draw force
+    for (var i = 0 ; i < myForce.length ; i++){
+        var forceCircle = s.circle(myForce[i][0] * dx + 20 , myForce[i][1] * dx + 20 , 8);
+        forceCircle.attr({
+        fill: "#d43939",
+        stroke: "#000",
+        strokeWidth: 3
+        });
+    }
+    /////////////////////////////////////////////
+    //
+    ////////////////////////////////////////////
+
+
     //
     myGuide = document.getElementById("myGuide");
     myGuide1 = document.getElementById("myGuide1");
@@ -97,7 +129,7 @@ function myGameFunction() {
     function render() {
         tileWidth = myNewCanvas.width / div;
         tileHeight = myNewCanvas.height / div;
-        ctx.strokeStyle = '#006400';
+        ctx.strokeStyle = '#e0cab1';
         ctx.lineWidth="1";
         //draw grid
         ctx.beginPath();
@@ -215,7 +247,7 @@ function myGameFunction() {
         //3_draw highlighted cell as thick border
         ctx.beginPath();
         ctx.lineWidth="3";
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = '#d43939';
         ctx.rect(xIndex * tileWidth, yIndex * tileHeight, tileWidth, tileHeight);
         ctx.stroke();
 
@@ -321,8 +353,6 @@ function myGameFunction() {
         socket.emit("userClicked",{data:myDensityMatrixContainer[myCurrentStateIndex]});
         console.log("userNewX");
 
-        console.log("here you go sid");
-        console.log(myDensityMatrixContainer[myCurrentStateIndex]._data);
 
     }
     
@@ -438,10 +468,6 @@ function myGameFunction() {
             myNodeCanvas.width = 0;
             myNodeCanvas.height = 0;
 
-
-
-
-
             //
             //DRAW CANVAS
             //
@@ -527,7 +553,7 @@ function myGameFunction() {
         })
         //
         .mouseover(function(){
-            NProgress.configure({ parent: '#myProgressDiv' });
+            NProgress.configure({ parent: '#myTitleBar' });
             //NProgress.inc(0.3);
             NProgress.configure({ minimum: 0.2});
             var delay=50;

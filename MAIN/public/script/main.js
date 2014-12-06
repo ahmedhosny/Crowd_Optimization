@@ -1,7 +1,7 @@
 //line st
-var socket=io('http://10.251.81.238:1337');
+//var socket=io('http://192.168.1.142:1337');
 //self
-//var socket=io('http://127.0.0.1:1337');
+var socket=io('http://127.0.0.1:1337');
 
 
 //$(document).ready(
@@ -29,11 +29,33 @@ var socket=io('http://10.251.81.238:1337');
         //remover myUserInfo
         myUserInfo.parentNode.removeChild(myUserInfo);
         
-        //functions
-        myStatusBarFunction();
-        myChallengeBoardFunction();
-        myTopScoresFunction();
-        myIMGFunction();
+
+        //things to run whe user hits go
+        // ask server for first X matrix
+        socket.emit('getFirstX',{});
+        console.log("requesting first x from server")
+        // when we get a reply, set it
+        socket.on('firstX', function(data){
+            console.log("received first X");
+            console.log(data);
+            //now we need to set the matrix to whatever we got here
+            var myMatrix = math.matrix(data);
+            console.log(myMatrix);
+            //
+            myDensityMatrixContainer[myCurrentStateIndex] = myMatrix;
+            // run my game function
+            myGameFunction(); 
+            //This will calculate on the first time the game is opened
+            var myBoolean = true;
+            myCalculateFunction(myBoolean,myBoolean);
+        });
+
+
+        //functions not to run
+        //myStatusBarFunction();
+        //myChallengeBoardFunction();
+        //myTopScoresFunction();
+        //myIMGFunction();
 
     }
     //

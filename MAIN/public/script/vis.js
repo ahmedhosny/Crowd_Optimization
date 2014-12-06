@@ -34,7 +34,8 @@ function VisDispFunc (U){
 	var myRainbow = new Rainbow();
 	//set spectrum
 	//myRainbow.setSpectrum('blue','aqua' ,'green', 'lime', 'yellow','orange', 'red');
-	myRainbow.setSpectrum('blue', 'lime', 'yellow', 'red');
+	//myRainbow.setSpectrum('blue', 'lime', 'yellow', 'red');
+	myRainbow.setSpectrum('#5d6ed9', '#5dd9ca', '#78d163', '#d2d95d' ,'#d9a95d' , '#d85c5c');
 	//set domain
 	var myMin = _.min(myUList), myMax = _.max(myUList);
 	myRainbow.setNumberRange(myMin, myMax)
@@ -59,7 +60,8 @@ function VisVMFunc(myElementVMStress){
 	var myRainbow = new Rainbow();
 	//set spectrum
 	//myRainbow.setSpectrum('blue','aqua' ,'green', 'lime', 'yellow','orange', 'red');
-	myRainbow.setSpectrum('blue', 'lime', 'yellow', 'red');
+	//myRainbow.setSpectrum('blue', 'lime', 'yellow', 'red');
+	myRainbow.setSpectrum('#5d6ed9', '#5dd9ca', '#78d163', '#d2d95d' ,'#d9a95d' , '#d85c5c');
 	//set domain
 	var myMin = _.min(myElementVMStress), myMax = _.max(myElementVMStress);
 	myRainbow.setNumberRange(myMin, myMax)
@@ -95,9 +97,9 @@ function myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp){
 			//draw nodes
 			context.beginPath();
 			context.arc(i*dx , j*dy , radius, 0, 2 * Math.PI, false);
-			context.fillStyle = 'cyan';
+			context.fillStyle = '#e0cab1';
 			context.fill();
-			context.strokeStyle = '#00ffff';
+			context.strokeStyle = '#e0cab1';
 			//Draw edges vertical
 			if(j<nely){
       			context.moveTo(i*dx, j*dy);
@@ -131,9 +133,9 @@ function myPlotFrameFunc(myNodeCanvas,myCanvas, myDisp){
 			for (var j = 0 ; j < nely + 1 ; j++){
 				context.beginPath();
 				context.arc(i*dx + myDispAdjA[i][j][0], j*dy + myDispAdjA[i][j][1]*(-1), radius, 0, 2 * Math.PI, false);
-				context.fillStyle = 'red';
+				context.fillStyle = '#d43939';
 				context.fill();
-				context.strokeStyle = '#7f0000';
+				context.strokeStyle = '#d43939';
 				//Draw edges vertical
 				if(j<nely){
 	      			context.moveTo(i*dx + myDispAdjA[i][j][0], j*dy + myDispAdjA[i][j][1]*(-1));
