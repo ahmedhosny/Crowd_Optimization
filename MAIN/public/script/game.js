@@ -6,7 +6,8 @@ function myGameFunction() {
     myGame.id = "myGame";
     //append myChallengeBoard
     myMainBody.appendChild(myGame);
-    myGame.innerHTML = "      <myGame oncontextmenu='return false;'> <div id='myMasterDiv'> <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myNewCanvas'> </canvas>  <canvas id='myNodeCanvas'> </canvas> <svg id='myBCsvg'> </svg> \
+    myGame.innerHTML = "      <myGame oncontextmenu='return false;'> <div id='myMasterDiv'> <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myNewCanvas'> </canvas>  <canvas id='myNodeCanvas'> </canvas> <canvas id='myWinLoseCanvas'> </canvas> <svg id='myBCsvg'> </svg> \
+    <canvas id = 'myStateCanvas'> </canvas>  \
     <div id= 'myScore'> \
      Max Displacement <br> <input id = 'myGuide' type='text' name='myGuide' size='12' readonly> <br><br>  \
      Max VonMises <br> <input id = 'myGuide1' type='text' name='myGuide1' size='12' readonly> <br><br> \
@@ -23,19 +24,15 @@ function myGameFunction() {
      <input type="radio" id="radio4" name="radio"   value="4" class="ui-helper-hidden-accessible"><label for="radio4" class="ui-button ui-widget ui-state-default ui-button-text-only ui-corner-right" role="button"><span class="ui-button-text">stress</span></label> </div>  \
      </form> </div> \
      <fieldset>  <select id="stateMenu">  </select> </fieldset>  \
-     <div id="bucketDiv" > <div class="bucket_outer"> <input id = "myBucket" type="text" name="myBucket" size="12" readonly><div class="bucket_inner"> <div></div> </div> </div> </div> \
+     <div id="bucketDiv" >   <div class="bucket_outer">  <div id = "myMarker"> </div>  <input id = "myBucket" type="text" name="myBucket" size="12" readonly> </input>  <div class="bucket_inner">  </div> </div> </div> \
      <br><br><br><br><br><input id ="myPrompt" type="text" name="myPrompt" size="50" readonly>  \
      </div> ' ;
 
 
 
 
-
-
-
-
-//checked="checked"
-//selected="selected"
+    //checked="checked"
+    //selected="selected"
 
 
     myGame.innerHTML += myRadioString;
@@ -73,26 +70,45 @@ function myGameFunction() {
     myVMCanvas.height = myNewCanvas.height;
     var myVMCTX= myVMCanvas.getContext('2d');
 
-   
+    //
+    var myWinLoseCanvas = document.getElementById("myWinLoseCanvas");
+    myWinLoseCanvas.width = myNewCanvas.width;
+    myWinLoseCanvas.height = myNewCanvas.height;
+    var myWinLoseCTX= myWinLoseCanvas.getContext('2d');
+
+    //
+    var myStateCanvas = document.getElementById("myStateCanvas");
+    myStateCanvas.width = 215;
+    myStateCanvas.height = 315;
+    var myStateCTX = myStateCanvas.getContext('2d');
+    myStateCTX.font="20px Open Sans";
+
+
 
 
     ///////////////////////////////////////////
     //BC visualization on svg
-    //////////////////////////////////////////
-    var s = Snap('#myBCsvg');
+    ///////////////////////////////////////////
+    mySnap = Snap('#myBCsvg');
     //draw supports
-    var dx = myNewCanvas.width / div;
+    dx = myNewCanvas.width / div;
+
+    mySnap.clear();
+
     for (var i = 0 ; i < mySupport.length ; i++){  
-        var supportCircle = s.circle(mySupport[i][0] * dx + 20 , mySupport[i][1] * dx + 20 , 8);
+        var supportCircle = mySnap.circle(mySupport[i][0] * dx + 80 , mySupport[i][1] * dx + 80 , 8);
         supportCircle.attr({
         fill: "#09b39c",
         stroke: "#000",
         strokeWidth: 3
         });
     }
+
     //draw force
     for (var i = 0 ; i < myForce.length ; i++){
-        var forceCircle = s.circle(myForce[i][0] * dx + 20 , myForce[i][1] * dx + 20 , 8);
+        var column = myForce[i][0];
+        var row = myForce[i][1];
+        var forceCircle = mySnap.circle(column * dx + 80 , row * dx + 80 , 8);
         forceCircle.attr({
         fill: "#d43939",
         stroke: "#000",
@@ -102,6 +118,7 @@ function myGameFunction() {
     /////////////////////////////////////////////
     //
     ////////////////////////////////////////////
+    //twoElementArray = math.subset(myDensityArray, math.index(myForce[i][0], myForce[i][1]));
 
 
     //
@@ -202,6 +219,24 @@ function myGameFunction() {
         console.log("client got newX");
     });
 
+
+
+    //////////////////////////////////////
+    //when you Win or Lose
+    //////////////////////////////////////
+
+    socket.on('winner', function(data){
+        console.log('you Win');
+        winFunc(true);
+    });
+
+    socket.on('loser', function(data){
+        console.log('you Lose');
+        winFunc(false);
+    });
+
+
+
     //////////////////////////////////////
     //myNewCanvas on mouse out
     //////////////////////////////////////
@@ -247,7 +282,6 @@ function myGameFunction() {
 
 
         if (myStressFlag || myDispFlag || myMeshFlag){
-            console.log("fucker");
             $('#myNewCanvas').css('opacity','0.3');
             drawCellsFunc(myDensityMatrixContainer[myCurrentStateIndex]);
             //
@@ -399,10 +433,6 @@ function myGameFunction() {
     //state menu
     /////////////////////////////////////////////
 
-
-
-
-
     $(function() {
         $( "#stateMenu" )
             .selectmenu()
@@ -443,9 +473,26 @@ function myGameFunction() {
         var myBoolean = false;
         myCalculateFunction(myBoolean, myBoolean);
 
-        //Now adjust myDensity and Bar
-        ////////////////////////////
+        //Now adjust mesh, disp and VM (they will adjust anyways - but just to adjust them if they are active)
+        if(myRadioVal == 2){
+            drawMeshFunc();
+        }
+        //
+        // Disp
+        //
+        else if(myRadioVal == 3){
+            drawDispFunc();
+        }
+         //
+        // VM (4)
+        //
+        else if(myRadioVal == 4){
+            drawVMFunc();
+        }
 
+        //Now we will treat the change here as if the user clicked - so that the new state is propagated to all users
+        socket.emit("userClicked",{data:myDensityMatrixContainer[myCurrentStateIndex]});
+        console.log("userNewX - state changed");
 
     });
 
@@ -465,17 +512,20 @@ function myGameFunction() {
     myNodeCanvas.height = 0;
 
     $('#radio input').on('change', function() {
-        var myVal = $('input[name=radio]:checked', '#radio').val(); 
+        myRadioVal = $('input[name=radio]:checked', '#radio').val(); 
         drawCellsFunc(myDensityMatrixContainer[myCurrentStateIndex]);
 
         //
         // Material
         //
-        if (myVal == 1){
+        if (myRadioVal == 1){
             //for flags
             myMeshFlag = false;
             myStressFlag = false;
             myDispFlag = false;
+            //draw BS as I like it
+            drawBCbeforeFunc(mySnap,dx);
+
             $('#myNewCanvas').css('opacity','1.0');
             //for Mesh
             myNodeCanvas.width = 0;
@@ -489,19 +539,19 @@ function myGameFunction() {
         //
         // Mesh
         //
-        else if(myVal == 2){
+        else if(myRadioVal == 2){
             drawMeshFunc();
         }
         //
         // Disp
         //
-        else if(myVal == 3){
+        else if(myRadioVal == 3){
             drawDispFunc();
         }
          //
         // VM (4)
         //
-        else if(myVal == 4){
+        else if(myRadioVal == 4){
             drawVMFunc();
         }
 
@@ -511,8 +561,8 @@ function myGameFunction() {
     ///////////////////////////
     //Calculate button
     ///////////////////////////////
-
-
+    // this counter will count how may times the counter was clicked.
+    var myCalBCounter = 0;
 
     $(function() {
         var myBoolean = true;
@@ -520,6 +570,9 @@ function myGameFunction() {
         //
         .click(function(){ 
             myCalculateFunction (myBoolean, myBoolean);
+
+
+
             //to redraw immedialtely after solving
             if(myMeshFlag){
                 drawMeshFunc();
@@ -530,6 +583,26 @@ function myGameFunction() {
             else if(myStressFlag){
                 drawVMFunc();
             }
+            //Now we want to draw the canvas on the side
+            myStateCTX.drawImage(myNewCanvas,0,105*myCalBCounter,100,100);
+            myStateCTX.fillText(myGuide2.value,125 ,105*myCalBCounter + 60);
+
+
+            if (myStressFlag || myDispFlag || myMeshFlag){
+
+            // 1_draw all cells with material
+            drawCellsFunc(myDensityMatrixContainer[myCurrentStateIndex]);
+            // 2_Draw grid
+            render();
+            // Draw it
+            myStateCTX.drawImage(myNewCanvas,0,105*myCalBCounter,100,100);
+            // clear out the myNewCanvas
+            var bool = false;
+            alphaFunc(myNewCanvas,bool);
+
+           }   
+            //now we want to add one to the counter
+            myCalBCounter+=1;
         })
         //
         .mouseover(function(){
@@ -548,107 +621,192 @@ function myGameFunction() {
 
 
 
-//////////////////////////////////
-//Functions to draw objects within myGame
-//////////////////////////////////
+    //////////////////////////////////
+    //Functions to draw objects within myGame
+    //////////////////////////////////
 
 
-//Draw mesh, disp anf func as if the radio buttons where clicked
-function drawMeshFunc(){
+    //Draw mesh, disp anf func as if the radio buttons where clicked
+    function drawMeshFunc(){
 
- 
-       //for flags
-    myMeshFlag = true;
-    myDispFlag = false;
-    myStressFlag = false;
-    $('#myNewCanvas').css('opacity','0.0');
+     
+           //for flags
+        myMeshFlag = true;
+        myDispFlag = false;
+        myStressFlag = false;
+        $('#myNewCanvas').css('opacity','0.0');
+        // draw the BC as I like them
+        drawBCafterFunc(mySnap,dx);
 
-    //clear out
-    myVMCTX.clearRect(0,0,myVMCanvas.width,myVMCanvas.height);
-    myDispCTX.clearRect(0,0,myDispCanvas.width,myDispCanvas.height);
+        //clear out
+        myVMCTX.clearRect(0,0,myVMCanvas.width,myVMCanvas.height);
+        myDispCTX.clearRect(0,0,myDispCanvas.width,myDispCanvas.height);
 
-    myNodeCanvas.width = myNewCanvas.width + 160;
-    myNodeCanvas.height = myNewCanvas.height + 160;
-    myPlotFrameFunc(myNodeCanvas, myNewCanvas, myDisp);
-}
-
-function drawDispFunc(){
-
-    //for flags
-    myMeshFlag = false;
-    myDispFlag = true;
-    myStressFlag = false;
-    //for Mesh
-    myNodeCanvas.width = 0;
-    myNodeCanvas.height = 0;
-    //
-    //DRAW CANVAS
-    //
-    //Create temp canvas (off-screen/small)
-    myDispCanvasT = createCanvas(nelx+1, nely+1);
-    myDispCTXT = myDispCanvasT.getContext('2d');
-    //loop through canvas pixels
-    for (var s = 0 ; s < nelx+1 ; s++){
-        for (var t = 0 ; t < nely+1 ; t++){
-        myDispCTXT.fillStyle = myDispColorArray[s][t];
-        myDispCTXT.fillRect( s, t, 1, 1 );
-        }
+        myNodeCanvas.width = myNewCanvas.width + 160;
+        myNodeCanvas.height = myNewCanvas.height + 160;
+        myPlotFrameFunc(myNodeCanvas, myNewCanvas, myDisp);
     }
-    //Get real canvas
-    //Global
-    //Put small canvas on real big canvas
-    myDispCTX.drawImage(myDispCanvasT,0,0,myNewCanvas.width,myNewCanvas.height);
-    //
-    //Set all black pixels in myCanvas to zero alpha chanel
-    //
-    var bool = false;
-    alphaFunc(myNewCanvas,bool);
-    //
-    //Additonal step to clear myVMCanvas canvas out of the way
-    //
-    myVMCTX.clearRect(0,0,myVMCanvas.width,myVMCanvas.height);
-}
- 
 
-function drawVMFunc(){
-    //for flags
-    myMeshFlag = false;
-    myDispFlag = false;
-    myStressFlag = true;
-    //for Mesh
-    myNodeCanvas.width = 0;
-    myNodeCanvas.height = 0;
+    function drawDispFunc(){
 
-    //
-    //DRAW CANVAS
-    //
-    //Create temp canvas (off-screen/small)
-    myVMCanvasT = createCanvas(nelx, nely);
-    myVMCTXT = myVMCanvasT.getContext('2d');
-    //loop through canvas pixels
-    for (var s = 0 ; s < nelx; s++){
-        for (var t = 0 ; t < nely ; t++){
-        myVMCTXT.fillStyle = myVMColorArray[s][t];
-        myVMCTXT.fillRect( s, t, 1, 1 );
+        //for flags
+        myMeshFlag = false;
+        myDispFlag = true;
+        myStressFlag = false;
+        //for Mesh
+        myNodeCanvas.width = 0;
+        myNodeCanvas.height = 0;
+        //draw BC as  i like it
+        drawBCbeforeFunc(mySnap,dx);
+        //
+        //DRAW CANVAS
+        //
+        //Create temp canvas (off-screen/small)
+        myDispCanvasT = createCanvas(nelx+1, nely+1);
+        myDispCTXT = myDispCanvasT.getContext('2d');
+        //loop through canvas pixels
+        for (var s = 0 ; s < nelx+1 ; s++){
+            for (var t = 0 ; t < nely+1 ; t++){
+            myDispCTXT.fillStyle = myDispColorArray[s][t];
+            myDispCTXT.fillRect( s, t, 1, 1 );
+            }
         }
+        //Get real canvas
+        //Global
+        //Put small canvas on real big canvas
+        myDispCTX.drawImage(myDispCanvasT,0,0,myNewCanvas.width,myNewCanvas.height);
+        //
+        //Set all black pixels in myCanvas to zero alpha chanel
+        //
+        var bool = false;
+        alphaFunc(myNewCanvas,bool);
+        //
+        //Additonal step to clear myVMCanvas canvas out of the way
+        //
+        myVMCTX.clearRect(0,0,myVMCanvas.width,myVMCanvas.height);
     }
-    //Get real canvas
-    //global
-    //Put small canvas on real big canvas
-    myVMCTX.drawImage(myVMCanvasT,0,0,myNewCanvas.width,myNewCanvas.height);
-    //
-    //Set all black pixels in myCanvas to zero alpha chanel
-    //
-    var bool = false;
-    alphaFunc(myNewCanvas,bool);
-    //
-    //Additonal step to clear myDispCanvas canvas out of the way
-    //
-    myDispCTX.clearRect(0,0,myDispCanvas.width,myDispCanvas.height);
-}   
+     
 
+    function drawVMFunc(){
+        //for flags
+        myMeshFlag = false;
+        myDispFlag = false;
+        myStressFlag = true;
+        //for Mesh
+        myNodeCanvas.width = 0;
+        myNodeCanvas.height = 0;
+        //BC as I like it
+        drawBCbeforeFunc(mySnap,dx);
+        //
+        //DRAW CANVAS
+        //
+        //Create temp canvas (off-screen/small)
+        myVMCanvasT = createCanvas(nelx, nely);
+        myVMCTXT = myVMCanvasT.getContext('2d');
+        //loop through canvas pixels
+        for (var s = 0 ; s < nelx; s++){
+            for (var t = 0 ; t < nely ; t++){
+            myVMCTXT.fillStyle = myVMColorArray[s][t];
+            myVMCTXT.fillRect( s, t, 1, 1 );
+            }
+        }
+        //Get real canvas
+        //global
+        //Put small canvas on real big canvas
+        myVMCTX.drawImage(myVMCanvasT,0,0,myNewCanvas.width,myNewCanvas.height);
+        //
+        //Set all black pixels in myCanvas to zero alpha chanel
+        //
+        var bool = false;
+        alphaFunc(myNewCanvas,bool);
+        //
+        //Additonal step to clear myDispCanvas canvas out of the way
+        //
+        myDispCTX.clearRect(0,0,myDispCanvas.width,myDispCanvas.height);
+    }   
+
+    //
+    //Win
+    //
+    function winFunc(boola){
+        if(boola){
+            var myWinMatrix = [[1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                              [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                              [1.0,0.0,1.0,1.0,1.0,0.0,1.0],
+                              [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                              [1.0,0.0,1.0,1.0,1.0,0.0,1.0],
+                              [1.0,1.0,0.0,0.0,0.0,1.0,1.0],
+                              [1.0,1.0,1.0,1.0,1.0,1.0,1.0]
+                              ];
+
+            for(var i = 0 ; i < div ; i++){
+                for(var j = 0 ; j < div ; j++){
+                    //populate all the cells
+                    var myVal = myWinMatrix[i][j];
+                    //from 0.0 t0 1.0
+                    if (myVal == 0.0){
+                        myWinLoseCTX.fillStyle = '#e0cab1';
+                    }
+                    else{
+                        myWinLoseCTX.fillStyle = '#09b39c';
+                    }
+                    //now draw a rect
+                    myWinLoseCTX.fillRect(j * tileWidth, i * tileHeight, tileWidth, tileHeight);
+                }
+            }
+        }
+        else{
+            var myWinMatrix = [[1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                              [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                              [1.0,0.0,1.0,1.0,1.0,0.0,1.0],
+                              [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
+                              [1.0,1.0,0.0,0.0,0.0,1.0,1.0],
+                              [1.0,0.0,1.0,1.0,1.0,0.0,1.0],
+                              [1.0,1.0,1.0,1.0,1.0,1.0,1.0]
+                              ];
+
+            for(var i = 0 ; i < div ; i++){
+                for(var j = 0 ; j < div ; j++){
+                    //populate all the cells
+                    var myVal = myWinMatrix[i][j];
+                    //from 0.0 t0 1.0
+                    if (myVal == 0.0){
+                        myWinLoseCTX.fillStyle = '#e0cab1';
+                    }
+                    else{
+                        myWinLoseCTX.fillStyle = '#d43939';
+                    }
+                    //now draw a rect
+                    myWinLoseCTX.fillRect(j * tileWidth, i * tileHeight, tileWidth, tileHeight);
+                }
+            }
+
+
+
+        }
+        // now draw grid on top of that
+        myWinLoseCTX.strokeStyle = '#e0cab1';
+        myWinLoseCTX.lineWidth="2";
+        //draw grid
+        myWinLoseCTX.beginPath();
+        for(var x = 0; x < div+1; x++) {
+            myWinLoseCTX.moveTo(x * tileWidth, 0);
+            myWinLoseCTX.lineTo(x * tileWidth, myNewCanvas.height);
+        }
+        for(var y = 0; y < div+1; y++) {
+            myWinLoseCTX.moveTo(0, y * tileHeight);
+            myWinLoseCTX.lineTo(myNewCanvas.width, y * tileHeight);
+        }
+        myWinLoseCTX.stroke();
+    }
 
   
+
+
+
+
+
+
 }
 
 
@@ -741,4 +899,87 @@ function adjustDensityAndBar(){
         $(bar).animate({width: val}, 200);
         myBucket.value = val;
 
+        //now for density reached - to server
+        var myDensityPer = (myDensity/(nelx*nely)*100).toFixed(1);
+        if (myDensityPer <= myTargetDensity){
+            //send to server
+
+            //
+            // Need some function here to calculate myScore
+            //
+
+            socket.emit("targertDensityReached",{data:myScore});
+            console.log("target density reached")
+
+            //set the bucket to target density so we dont get decimal places - very clean!
+            myBucket.value = myTargetDensity + '%';
+        }
+
+
+
 }
+
+
+
+function drawBCafterFunc(mySnap,dx){
+
+    mySnap.clear();
+
+    for (var i = 0 ; i < mySupport.length ; i++){  
+        var supportCircle = mySnap.circle(mySupport[i][0] * dx + 80 , mySupport[i][1] * dx + 80 , 8);
+        supportCircle.attr({
+        fill: "#09b39c",
+        stroke: "#000",
+        strokeWidth: 3
+        });
+    }
+
+        ////
+    for (var i = 0 ; i < myForce.length ; i++){
+        var column = myForce[i][0];
+        var row = myForce[i][1];
+        var forceCircle = mySnap.circle(column * dx + 80 + myDispArray2[column][row][0] , row * dx + 80 + myDispArray2[column][row][1]*(-1), 8);
+        forceCircle.attr({
+        fill: "#d43939",
+        stroke: "#000",
+        strokeWidth: 3
+        });
+    }
+
+}
+
+function drawBCbeforeFunc(s,dx){
+
+    mySnap.clear();
+
+    //draw support
+    for (var i = 0 ; i < mySupport.length ; i++){  
+        var supportCircle = mySnap.circle(mySupport[i][0] * dx + 80 , mySupport[i][1] * dx + 80 , 8);
+        supportCircle.attr({
+        fill: "#09b39c",
+        stroke: "#000",
+        strokeWidth: 3
+        });
+    }
+
+    //draw force
+    for (var i = 0 ; i < myForce.length ; i++){
+        var column = myForce[i][0];
+        var row = myForce[i][1];
+        var forceCircle = mySnap.circle(column * dx + 80 , row * dx + 80 , 8);
+        forceCircle.attr({
+        fill: "#d43939",
+        stroke: "#000",
+        strokeWidth: 3
+        });
+    }   
+
+}
+
+
+function calculateScoreFunc(){
+
+}
+
+
+

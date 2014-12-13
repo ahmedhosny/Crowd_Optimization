@@ -10,6 +10,19 @@ function List2Array(list,nelx,nely){ //+1
 	return my2dArray;
 }
 
+function List2Array2(list,subD){ //+1
+	var my2dArray = [];
+	for (var i = 0 ; i < list.length ; i = i + subD){
+		var my2dArrayTemp = [];
+
+		my2dArrayTemp.push(list[i]);
+		my2dArrayTemp.push(list[i+1]);
+
+		my2dArray.push(my2dArrayTemp);
+	}
+	return my2dArray;
+}
+
 function convertHex(hex,opacity){
     hex = hex.replace('#','');
     r = parseInt(hex.substring(0,2), 16);

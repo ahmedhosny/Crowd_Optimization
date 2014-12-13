@@ -9,11 +9,19 @@
 // red #d43939
 var div = 7;
 var wholeDim = 315;
+var myExagerationFactor = 2;
 //[column,row]
-var mySupport = [[2,0],[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1]];
-var myForce = [[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7]];
+//Case 1
+//var mySupport = [[2,0],[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1]];
+//var myForce = [[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7]];
+//Case 2
+var mySupport = [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7]];
+var myForce = [[7,4],[7,5],[7,6],[7,7]];
 var myForceMag = -1;
 var myForceDir = 'y';
+//Change the bucket in css!!!
+var myTargetDensity = 80;
+var myScore = Math.round(Math.random()*1000)/100 ;
 // change myBCsvg
 // change initial matrix in app
 ///////////////////////////////////////////////////
@@ -37,6 +45,7 @@ var myDispColorArray = [];
 var myECoor = [];
 var myNIndex = [];
 var myDisp = [];
+var myDispArray2 = [];
 //
 var myElementVMStress = [];
 var myVMColorArray = [];
@@ -58,7 +67,11 @@ var myMaxVM = 0.0;
 var myCompliance = 0.0;
 var myScores = [];
 var myScoresPer = []; // for display within states
+var myRadioVal = 1;
 
+//for BC
+var mySnap;
+var dx;
 //
 //
 //
@@ -415,11 +428,20 @@ function myCalculateFunction (myBoolean, myBoolean2){
     
 
     //  exagerate the displacement
-     myDisp = myDisp.map( function(item) { return item * 5; } );
+    myDisp = myDisp.map( function(item) { return item * myExagerationFactor; } );
+    // first get each two X,Y pairs together
+    myDispArray = List2Array2(myDisp ,2);
+    // then out each pair in div by div 2d array
+    myDispArray2 = List2Array(myDispArray , div + 1, div + 1);
+    //now myDispArray2 can be used for moving the force svg
+
+
 
     //
     //get disp from vector
     myUList = XYtoVectorFunc(myDisp);
+
+
     myMaxDisp = _.max(myUList) ;
     //console.log(myMaxDisp);
     
