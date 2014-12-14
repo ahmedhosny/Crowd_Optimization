@@ -3,7 +3,6 @@
 //self
 var socket=io('http://127.0.0.1:1337');
 
-
 //$(document).ready(
 
 //function () {
@@ -18,6 +17,9 @@ var myAddFlag = false, myDeleteFlag = false;
 var myNewPer = [3];
 var myBucketValue = 0.0;
 var myOriginalPer = 0.0;
+var myUserName;
+var myPlayer1temp;
+var myPlayer2temp;
 //
 //when GO! clicked
 //
@@ -69,7 +71,18 @@ socket.on("needToLogin", function(data){
 });
 
 
+socket.on("userJoined", function(data){
+    // If I am the first player
+    if (data.length == 1){
+       myPlayer1temp = data[0].name;
+       myPlayer2temp = "not in yet";
+    }
 
+    else{
+        myPlayer1temp = data[0].name;
+        myPlayer2temp  = data[1].name;
+    }
+});
 
 
 
@@ -100,10 +113,7 @@ function login(name, password) {
 
 
 
-socket.on("userJoined", function(data){
-    console.log("JOINED:");
-    console.log(data);
-});
+
 
 socket.on("userLeft", function(data){
     console.log("LEFT:");

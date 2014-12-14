@@ -6,7 +6,8 @@ var us = require("underscore");
 
 var clientScore = [];
 var clientCount = 0;
-
+var clientIDs = [];
+var userPacketList = [];
 var myXMatrix = [[1.0,1.0,1.0,1.0,1.0,1.0,1.0],
                   [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
                   [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
@@ -16,16 +17,17 @@ var myXMatrix = [[1.0,1.0,1.0,1.0,1.0,1.0,1.0],
                   [1.0,1.0,1.0,1.0,1.0,1.0,1.0]
                   ];
                  
-
 //var myXMatrix = [[1,0.6],[1,0.6]];
-                  
-
+                 
 app.use(express.static(__dirname + '/public'));
+
 
 
 var server = app.listen(process.env.PORT || 1337, function() {
     console.log('Listening on port %d', server.address().port);
 });
+
+
 
 //................................Socket.io
 //initialize socket.io to listen to the same server as express
@@ -33,10 +35,17 @@ var io = require('socket.io').listen(server);
 
 io.sockets.on('connection', function (socket) {
   
+  //push id to list
+  clientIDs.push(socket.id);
+
+
+
   //get number of clients
   clientCount = findClientsSocket().length;
   console.log("connection established");
-  console.log(findClientsSocket());
+  //console.log(findClientsSocket());
+
+
 
   //////////////////////////////////////////////////////////////
 
@@ -45,10 +54,18 @@ io.sockets.on('connection', function (socket) {
   socket.on('getFirstX', function(data){   
           socket.emit('firstX', myXMatrix);
           console.log("server emited firstX");
+          //lets emit here allow and block for the first time
+          io.sockets.connected[clientIDs[0]].emit("allow", {});
+          //and if the second player joins
+          if(clientIDs.length > 1){
+             io.sockets.connected[clientIDs[1]].emit("block", {});
+          }
     });
 
+
+
+
     socket.on('userClicked', function(data){
-          console.log(data);
           //broadcast will send to all except newly created connection
           //socket.broadcast.emit('newX', data);
           //emit will send to all
@@ -58,6 +75,15 @@ io.sockets.on('connection', function (socket) {
           //socket.broadcast.emit will send the message to all the other clients except the newly created connection
           io.sockets.emit('newX', myXMatrix);
           console.log("server emited newX to all");
+    });
+
+    //when a user runs out of clicks
+    socket.on('outOfClicks', function(){   
+          console.log("a user has run out of clicks");
+          //send message to that socket only
+          socket.emit('block',{});
+          //send to the other player
+          socket.broadcast.emit('allow',{});
     });
 
     //When the target density is reached
@@ -70,13 +96,10 @@ io.sockets.on('connection', function (socket) {
           // avoid duplicates
           clientScore = us.uniq(clientScore, function(item, key, id) { return item.id; })
 
-        
-
           // now we need to make sure that all sockets have logged in their scores
           // only if ClientScore.length is the same as clientCount
 
           if( parseInt(clientScore.length) == parseInt(clientCount)){
-            console.log(clientScore);
             var winner = us.max(clientScore, function(clientScore){ return clientScore.score; });
 
             //send message to winner that he won
@@ -89,19 +112,10 @@ io.sockets.on('connection', function (socket) {
                 // if they are losers
                 if ( myID != winner.id){
                     io.sockets.connected[myID].emit('loser', 'some data');
-                }
-                
+                }    
             }
-            //console.log(" ooooo!  winner is");
-            //console.log(winner);
           }
-
-
-
     });
-
-
-
 
     //USERS
 
@@ -110,24 +124,36 @@ io.sockets.on('connection', function (socket) {
     if (u) {
       if (u.password==data.password) {
         var userpacket={name:u.name, id:u.id};
-        socket.emit("loggedin", userpacket);        
-        socket.broadcast.emit("userJoined", userpacket);
-        u.socket=socket;
-        socket.user=u;
+         userPacketList.push(userpacket);
+      //socket.emit("loggedin", userpacket);  
+      io.sockets.emit("userJoined", userPacketList) ;
+        //socket.emit("loggedin", userpacket);        
+        //socket.broadcast.emit("userJoined", userpacket);
+        //u.socket=socket;
+        //socket.user=u;
       }
       else {
         socket.emit("loginFailed", {error:"wrong password"});
       }
     }
+
+
     else {
       u=new User(data.name, data.password, socket);
       var userpacket={name:u.name, id:u.id};
       socket.user=u;
-      socket.emit("loggedin", userpacket);        
-      socket.broadcast.emit("userJoined", userpacket);
-      console.log("loggedin", userpacket);
+      // all users will be new
+      userPacketList.push(userpacket);
+      socket.emit("loggedin", userpacket); 
+      //io.sockets.emit("userJoined", userpacket);   
+      io.sockets.emit("userJoined", userPacketList) ;     
+      //socket.broadcast.emit("userJoined", userpacket);
+      console.log("loggedin", userPacketList);
+      // to update all names
+      socket.broadcast.emit("update",{});          
     }
   });
+
 
   //when a client disconnects this message is received
   socket.on('disconnect', function(){
@@ -164,7 +190,6 @@ function User(name, password, color, socket) {
 
     userid++;
 }
-
 
 
 

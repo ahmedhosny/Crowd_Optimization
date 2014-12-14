@@ -14,11 +14,11 @@ html, body {
     height : 100%;
     width : 100%;
     background-color:#e0cab1;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
 }
 #myTitleBar {
     top:0px;
@@ -109,35 +109,32 @@ html, body {
     top:130px;
     margin: 0 auto;
 }
-#myDispCanvas{
+
+#myDispCanvas, #myVMCanvas{
     position: absolute;
-left:0px;
-top:0px
+    left:0px;
+    top:0px
 }
-#myVMCanvas{
-    position: absolute;
-left:0px;
-top:0px;
-}
+
 #myNodeCanvas{
     position: absolute;
-left:-80px;
-top:-80px;
-pointer-events:none;
+    left:-80px;
+    top:-80px;
+    pointer-events:none;
 }
 
 #myWinLoseCanvas{
     position: absolute;
-left:0px;
-top:0px;
-pointer-events:none;
+    left:0px;
+    top:0px;
+    pointer-events:none;
 
 
 }
 #myNewCanvas{
     position: absolute;
-left:0px;
-top:0px;
+    left:0px;
+    top:0px;
 }
 #myBCsvg{
     position: absolute;
@@ -153,14 +150,18 @@ top:0px;
 #myStateCanvas{
     position: absolute;
     left: -260px;
-    top: 0px;
-
-    
+    top: 0px;   
+}
+#myBlockCanvas{
+    position: absolute;
+    left:0px;
+    top:0px;
+    /* this canvas should not allow clicking through */
 }
 
 .bucket_outer {
-    width:230px;
-    height: 68px;
+    width: 359px;
+    height: 30px;
     border: 3px solid #d43939;
 
     overflow: hidden;
@@ -171,6 +172,7 @@ top:0px;
     border-radius: 4px;
     z-index:7;
     float:left;
+    background-color: #e0cab1;
 }
 
 .bucket_inner, .bucket_inner div {
@@ -227,7 +229,7 @@ top:0px;
 }
 
 #myRadioDiv{
-margin-left: 30px;
+margin-left: 33px;
 float: left;
 }
 
@@ -240,12 +242,12 @@ width:70px;
 }
 
 #myPrompt {
-    left:185px;
-    top:110px;
-    position: absolute;
-    border:none;
-    opacity: 0.7;
-    background-color: #e0cab1;
+left: 300px;
+top: 80px;
+position: absolute;
+border: none;
+opacity: 0.7;
+background-color: #e0cab1;
 }
 
 /*for state menu */
@@ -270,10 +272,11 @@ select {
 }
 
 #bucketDiv{
-    margin-left: 30px;
-    float: left;
-    width: 234px;
-    height:72px;
+width: 290px;
+height: 72px;
+position: absolute;
+top: 68px;
+left: 287px;
 }
 
 #myMarker{
@@ -289,31 +292,65 @@ select {
 
 }
 #myScore{
-    /* text-align: center; */
-    position: relative;
-    width: 232px;
-    height: 315px;
-    font-size: 14px;
-    border: 0;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border-radius: 4px;
-    /* margin: 30px; */
-    top: 80px;
-    left: 380px;
-    float: center;
+position: relative;
+width: 835px;
+height: 315px;
+font-size: 14px;
+border: 0;
+-moz-border-radius: 4px;
+-webkit-border-radius: 4px;
+border-radius: 4px;
+top: 0px;
+left: -260px;
+pointer-events:none;
+
 }
 
-#myGuide, #myGuide1, #myGuide2 {
-    background-color: #e0cab1 ;
+#myGuide, #myGuide1, #myGuide2, #myPlayer1, #myPlayer1Score {
+    background-color: #e0cab1;  /*  */
     text-align: center;
     font-size: 22px;
     border: none;
     font-weight: 600;
     width: 150px;
+    position: absolute;
+    left: 0px;
 }
+
+#myPlayer2, #myPlayer2Score {
+    background-color: #e0cab1 ;  /* */
+    text-align: center;
+    font-size: 22px;
+    border: none;
+    font-weight: 600;
+    width: 150px;
+    position: absolute;
+    left: 685px;
+    top: 0px;
+}
+
+#myPlayer2Score {
+    background-color: #e0cab1;  /*  */
+    text-align: center;
+    font-size: 22px;
+    border: none;
+    font-weight: 600;
+    width: 150px;
+    position: absolute;
+    left: 685px;
+    top: 38px;
+}
+
 #mySquareRoot{
     position: relative;
     left: -11px;
     height: 60px;
 }
+
+#allow, #block{
+width: 28px;
+position: absolute;
+top: -38px;
+left: 455px;
+}
+

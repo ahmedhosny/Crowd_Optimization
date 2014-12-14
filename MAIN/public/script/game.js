@@ -6,16 +6,22 @@ function myGameFunction() {
     myGame.id = "myGame";
     //append myChallengeBoard
     myMainBody.appendChild(myGame);
-    myGame.innerHTML = "      <myGame oncontextmenu='return false;'> <div id='myMasterDiv'> <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myNewCanvas'> </canvas>  <canvas id='myNodeCanvas'> </canvas> <canvas id='myWinLoseCanvas'> </canvas> <svg id='myBCsvg'> </svg> \
+
+    myGame.innerHTML = "     <myGame oncontextmenu='return false;'>  <div id='myMasterDiv'>  <canvas id='myVMCanvas'> </canvas>  <canvas id='myDispCanvas'> </canvas>  <canvas id='myNewCanvas'> </canvas>  <canvas id='myNodeCanvas'> </canvas> <canvas id='myWinLoseCanvas'> </canvas> <svg id='myBCsvg'> </svg> <canvas id='myBlockCanvas'> </canvas>  \
     <canvas id = 'myStateCanvas'> </canvas>  \
     <div id= 'myScore'> \
-     Max Displacement <br> <input id = 'myGuide' type='text' name='myGuide' size='12' readonly> <br><br>  \
-     Max VonMises <br> <input id = 'myGuide1' type='text' name='myGuide1' size='12' readonly> <br><br> \
-     Compliance <br> <input id = 'myGuide2' type='text' name='myGuide2' size='12' readonly> \
+    <input id = 'myPlayer1' type='text' name='myPlayer1' size='20' readonly> <br> <br> \
+    <input id = 'myPlayer1Score' type='text' name='myPlayer1Score' size='20' readonly> \
+    <input id = 'myPlayer2' type='text' name='myPlayer2' size='20' readonly><br><br>\
+    <input id = 'myPlayer2Score' type='text' name='myPlayer2Score' size='20' readonly> \
+     <input id = 'myGuide' type='text' name='myGuide' size='12' readonly> <br><br>  \
+     <input id = 'myGuide1' type='text' name='myGuide1' size='12' readonly> <br><br> \
+     <input id = 'myGuide2' type='text' name='myGuide2' size='12' readonly> \
      </div> \
     </div>";
+
     var myRadioString =  ' <div id="myToolBar" >  \
-    <div id="myCalB" class="ui-button ui-widget ui-state-default ui-corner-all" role="button"><img id="mySquareRoot" src="img/squareRoot.png"/></div> \
+    <div id="myCalB" ></div> \
     <div id="myRadioDiv">  \
     <form> <div id="radio" class="ui-buttonset">     \
     <input type="radio" id="radio1" name="radio" value="1"  class="ui-helper-hidden-accessible"><label for="radio1" class="ui-state-active ui-button ui-widget ui-state-default ui-button-text-only ui-corner-left" role="button"><span class="ui-button-text">material</span></label>     \
@@ -83,9 +89,44 @@ function myGameFunction() {
     var myStateCTX = myStateCanvas.getContext('2d');
     myStateCTX.font="20px Open Sans";
 
+    var myBlockCanvas = document.getElementById('myBlockCanvas');
 
 
 
+    //////////////////////
+    //players and player names
+    //////////////////////
+    myPlayer1 = document.getElementById("myPlayer1");  
+    myPlayer2 = document.getElementById("myPlayer2");
+    myPlayer1.value =  myPlayer1temp;
+    myPlayer2.value =  myPlayer2temp;
+    
+
+    socket.on("update", function(data){
+        myPlayer1.value =  myPlayer1temp;
+        myPlayer2.value =  myPlayer2temp;
+    });
+
+    ///////////////////////
+    //Player scores
+    //////////////////////
+    myPlayer1Score = document.getElementById("myPlayer1Score");
+    myPlayer2Score = document.getElementById("myPlayer2Score");
+    myPlayer1Score.value = "12";
+    myPlayer2Score.value = "20";
+
+    
+
+/*
+    Object.observe(myPlayer1temp, function(){
+        myPlayer1.value =  myPlayer1temp;
+    });
+
+    Object.observe(myPlayer2temp, function(){
+        myPlayer2.value =  myPlayer2temp;
+    });
+
+*/
     ///////////////////////////////////////////
     //BC visualization on svg
     ///////////////////////////////////////////
@@ -165,23 +206,20 @@ function myGameFunction() {
         for(var i = 0 ; i < div ; i++){
             for(var j = 0 ; j < div ; j++){
                 //populate all the cells
-                var myVal = Math.round( math.subset(myDensityMatrix, math.index(i, j)) * 10 ) / 10 ;
+                var myVal = Math.round( math.subset(myDensityMatrix, math.index(i, j)) * 100 ) / 100 ;
                 //from 0.0 t0 1.0
                 switch (myVal) {
                     case 0.0:
-                        ctx.fillStyle = '#fefefe';
+                        ctx.fillStyle = '#fefefe'; // almost white, but not quite.
                     break;
-                    case 0.2:
-                        ctx.fillStyle = '#E5E5E5';
+                    case 0.25:
+                        ctx.fillStyle = '#B8B8B8';
                     break;
-                    case 0.4:
-                        ctx.fillStyle = '#B3B3B3';
+                    case 0.50:
+                        ctx.fillStyle = '#787878 ';
                     break;
-                    case 0.6:
-                        ctx.fillStyle = '#7F7F7F';
-                    break;
-                    case 0.8:
-                        ctx.fillStyle = '#4D4D4D';
+                    case 0.75:
+                        ctx.fillStyle = '#404040';
                     break;
                     case 1.0:
                         ctx.fillStyle = '#000000';
@@ -201,13 +239,13 @@ function myGameFunction() {
     }
 
     //////////////////////////////////////
-    //when a new densitymatrix comes in
+    // when a new densitymatrix comes in 
     //////////////////////////////////////
 
     socket.on('newX', function(data){
         //some data parsing
         var myMatrix = math.matrix(data);
-        console.log(myMatrix);
+       // console.log(myMatrix);
             //1_draw all cells with material
             myDensityMatrixContainer[myCurrentStateIndex] = myMatrix;
             drawCellsFunc(myMatrix);
@@ -216,7 +254,7 @@ function myGameFunction() {
             //
             adjustDensityAndBar();
 
-        console.log("client got newX");
+       // console.log("client got newX");
     });
 
 
@@ -235,6 +273,22 @@ function myGameFunction() {
         winFunc(false);
     });
 
+
+    //////////////////////////////////////
+    //when you get blocked or allowed
+    //////////////////////////////////////
+
+    socket.on('block', function(data){
+        console.log('you have been blocked');
+        block();
+    });
+
+    socket.on('allow', function(data){
+        console.log('you can play now');
+        allow();
+    });
+
+    
 
 
     //////////////////////////////////////
@@ -316,18 +370,7 @@ function myGameFunction() {
 
     }
 
-    //
-    //JQUERY
-    //
-    $(document).keydown(function(event){
-    if(event.which=="17")
-        cntrlIsPressed = true;
-    });
 
-    $(document).keyup(function(){
-        cntrlIsPressed = false;
-    });
-    var cntrlIsPressed = false;
 
     //////////////////////////////////////
     //myNewCanvas on mouse down
@@ -335,6 +378,8 @@ function myGameFunction() {
 
 
     myNewCanvas.onmousedown = function (e){
+        //set a temp equal to density matrix
+        var myTemp = myDensityMatrixContainer[myCurrentStateIndex] ;
 
         var rect = myNewCanvas.getBoundingClientRect(),
         mx = e.clientX - rect.left,
@@ -343,63 +388,42 @@ function myGameFunction() {
         xIndex = Math.round((mx - tileWidth * 0.5) / tileWidth),
         yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
         //////////////////////////////
-        //CASE ADD - myDensityMatrix manipulation only
-        //Left click
-        //////////////////////////////
-        if (e.which == 1 && cntrlIsPressed==false) { 
-            // Radio_Add.checked = true;
-            // fill the myDensityMatrix with number one
-            myDensityMatrixContainer[myCurrentStateIndex]= math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index( yIndex,xIndex), 1); 
-            myPrompt.value = "Material added.";
-
-        }
-        //////////////////////////////
-        //CASE SUB - myDensityMatrix manipulation only
-        //Right click
-        ////////////////////////////////
-        else if (e.which == 3 && cntrlIsPressed==false) {
-            //Radio_Sub.checked = true;
-            // fill the myDensityMatrix with number one
-            myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ), 0); 
-            myPrompt.value = "Material subtracted.";
-        }
-        //////////////////////////////
         //CASE ADD INC - myDensityMatrix manipulation only
-        // left + ctrl
+        // left 
         //////////////////////////////
-        else if (e.which == 1 && cntrlIsPressed) {
+        if (e.which == 1 ) {
             //Radio_AddInc.checked = true;
             //Get value at that index
             var myCurrentVal = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ));
             var myNewVal;
             //Value to substitute
-            if(myCurrentVal <= 0.8){
-                myNewVal = myCurrentVal + 0.2;
+            if(myCurrentVal <= 0.75){
+                myNewVal = myCurrentVal + 0.25;
             }
             else{
                 myNewVal = 1.0; 
             }
-            // fill the myDensityMatrix with number one
+            // fill the myDensityMatrix with new val
             myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ), myNewVal); 
             myPrompt.value = "Material added.";
         }
         //////////////////////////////
         //CASE SUB INC - myDensityMatrix manipulation only
-        // right + ctrl
+        // right 
         //////////////////////////////
-        else if (e.which == 3 && cntrlIsPressed) { 
+        else if (e.which == 3 ) { 
             //Radio_SubInc.checked = true;
             //Get value at that index
             var myCurrentVal = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ));
             var myNewVal;
             //Value to substitute
-            if(myCurrentVal >= 0.2){
-                myNewVal = myCurrentVal - 0.2;
+            if(myCurrentVal >= 0.25){
+                myNewVal = myCurrentVal - 0.25;
             }
             else{
                 myNewVal = 0.0; 
             }
-            // fill the myDensityMatrix with number one
+            // fill the myDensityMatrix with new val
             myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ), myNewVal);
             myPrompt.value = "Material subtracted."; 
         }
@@ -414,10 +438,44 @@ function myGameFunction() {
         //////////////////////////
 
         myDensityMatrixContainer[myCurrentStateIndex] = elementDensityFunc(myDensityMatrixContainer[myCurrentStateIndex],div);
-
         socket.emit("userClicked",{data:myDensityMatrixContainer[myCurrentStateIndex]});
-        console.log("userNewX");
+        //console.log("userNewX");
 
+        ///////////////////////////
+        //if density matrix has actualy changed, then 
+        ///////////////////////////
+        if(myTemp._data.equals(myDensityMatrixContainer[myCurrentStateIndex]._data) == false && myClickCounter < 4) {
+            myClickCounter+=1;
+            //console.log(myClickCounter);
+        }
+        //if number of clicks exceeded
+        if(myClickCounter == 4){
+            myClickCounter = 0;
+            socket.emit("outOfClicks",{});
+            //////////////
+            //display calculation
+            NProgress.configure({ parent: '#myGame' });
+            //NProgress.inc(0.3);
+            NProgress.configure({ minimum: 0.2});
+            NProgress.start(); 
+            NProgress.inc(0.1);
+            myPrompt.value = "Calculating...";
+            //////////////
+            //now calculate
+            //////////////
+            myCalculateFunction (true, true);
+            //to redraw immedialtely after solving
+            if(myMeshFlag){
+                drawMeshFunc();
+            }
+            else if(myDispFlag){
+                drawDispFunc();
+            }
+            else if(myStressFlag){
+                drawVMFunc();
+            }
+            //////////////
+        }
 
     }
     
@@ -492,7 +550,7 @@ function myGameFunction() {
 
         //Now we will treat the change here as if the user clicked - so that the new state is propagated to all users
         socket.emit("userClicked",{data:myDensityMatrixContainer[myCurrentStateIndex]});
-        console.log("userNewX - state changed");
+        //console.log("userNewX - state changed");
 
     });
 
@@ -562,17 +620,14 @@ function myGameFunction() {
     //Calculate button
     ///////////////////////////////
     // this counter will count how may times the counter was clicked.
+    /*
     var myCalBCounter = 0;
-
     $(function() {
         var myBoolean = true;
         $( "#myCalB" ).button()
         //
         .click(function(){ 
             myCalculateFunction (myBoolean, myBoolean);
-
-
-
             //to redraw immedialtely after solving
             if(myMeshFlag){
                 drawMeshFunc();
@@ -586,8 +641,6 @@ function myGameFunction() {
             //Now we want to draw the canvas on the side
             myStateCTX.drawImage(myNewCanvas,0,105*myCalBCounter,100,100);
             myStateCTX.fillText(myGuide2.value,125 ,105*myCalBCounter + 60);
-
-
             if (myStressFlag || myDispFlag || myMeshFlag){
 
             // 1_draw all cells with material
@@ -599,7 +652,6 @@ function myGameFunction() {
             // clear out the myNewCanvas
             var bool = false;
             alphaFunc(myNewCanvas,bool);
-
            }   
             //now we want to add one to the counter
             myCalBCounter+=1;
@@ -619,7 +671,7 @@ function myGameFunction() {
         });
      });
 
-
+*/
 
     //////////////////////////////////
     //Functions to draw objects within myGame
@@ -729,6 +781,8 @@ function myGameFunction() {
     //Win
     //
     function winFunc(boola){
+        //either way, delete the chess
+        $("#myToolBar").find("img").remove();
         if(boola){
             var myWinMatrix = [[1.0,1.0,1.0,1.0,1.0,1.0,1.0],
                               [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
@@ -780,9 +834,6 @@ function myGameFunction() {
                     myWinLoseCTX.fillRect(j * tileWidth, i * tileHeight, tileWidth, tileHeight);
                 }
             }
-
-
-
         }
         // now draw grid on top of that
         myWinLoseCTX.strokeStyle = '#e0cab1';
@@ -799,13 +850,6 @@ function myGameFunction() {
         }
         myWinLoseCTX.stroke();
     }
-
-  
-
-
-
-
-
 
 }
 
@@ -909,14 +953,11 @@ function adjustDensityAndBar(){
             //
 
             socket.emit("targertDensityReached",{data:myScore});
-            console.log("target density reached")
+            //console.log("target density reached")
 
             //set the bucket to target density so we dont get decimal places - very clean!
             myBucket.value = myTargetDensity + '%';
         }
-
-
-
 }
 
 
@@ -982,4 +1023,47 @@ function calculateScoreFunc(){
 }
 
 
+// attach the .equals method to Array's prototype to call it on any array
+Array.prototype.equals = function (array) {
+    // if the other array is a falsy value, return
+    if (!array)
+        return false;
+
+    // compare lengths - can save a lot of time 
+    if (this.length != array.length)
+        return false;
+
+    for (var i = 0, l=this.length; i < l; i++) {
+        // Check if we have nested arrays
+        if (this[i] instanceof Array && array[i] instanceof Array) {
+            // recurse into the nested arrays
+            if (!this[i].equals(array[i]))
+                return false;       
+        }           
+        else if (this[i] != array[i]) { 
+            // Warning - two different object instances will never be equal: {x:20} != {x:20}
+            return false;   
+        }           
+    }       
+    return true;
+} 
+
+function block(){
+    
+    $("#myToolBar").find("img").remove();
+    $('#myToolBar').prepend('<img id="block" src="img/block.png" />');
+    myBlockCanvas.width = myNewCanvas.width;
+    myBlockCanvas.height = myNewCanvas.height;
+
+}
+
+
+function allow(){
+    
+    $("#myToolBar").find("img").remove();
+    $('#myToolBar').prepend('<img id="allow" src="img/allow.png" />');
+    myBlockCanvas.width = 0;
+    myBlockCanvas.height = 0;
+
+}
 

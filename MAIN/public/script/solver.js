@@ -68,7 +68,7 @@ var myCompliance = 0.0;
 var myScores = [];
 var myScoresPer = []; // for display within states
 var myRadioVal = 1;
-
+var myClickCounter = 0;
 //for BC
 var mySnap;
 var dx;
@@ -466,8 +466,9 @@ function myCalculateFunction (myBoolean, myBoolean2){
     myScores.push([myMaxDisp,myMaxVM,parseFloat(myCompliance)]);
     console.log(myScores);
     //Here myGuide, myGuide1 and myGuide2 will all be set
-    calculateScore();
+    //calculateScore();
     //
+
 
     NProgress.done();
     //get time again
@@ -587,3 +588,4 @@ function calculateScore(){
     }
 
 }
+
