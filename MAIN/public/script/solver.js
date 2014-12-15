@@ -10,13 +10,24 @@
 var div = 7;
 var wholeDim = 315;
 var myExagerationFactor = 2;
+
 //[column,row]
 //Case 1
 //var mySupport = [[2,0],[3,0],[4,0],[5,0],[2,1],[3,1],[4,1],[5,1]];
 //var myForce = [[0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7]];
 //Case 2
-var mySupport = [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7]];
-var myForce = [[7,4],[7,5],[7,6],[7,7]];
+//var mySupport = [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7]];
+//var myForce = [[7,4],[7,5],[7,6],[7,7]];
+//Case 3
+//var mySupport = [[0,0],[0,1],[1,0],[7,0],[6,0],[7,1],[0,7],[0,6],[1,7],[7,7],[6,7],[7,6]];
+//var myForce = [[3,3],[3,4],[4,3],[4,4]];
+//Case 4
+//var mySupport = [[7,7],[0,7],[1,7],[6,7]];
+//var myForce = [[3,0],[4,0]];
+//Case 5
+var mySupport = [[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[7,0],[7,1],[7,2],[7,3],[7,4],[7,5],[7,6],[7,7]];
+var myForce = [[4,3],[4,4],[5,3],[5,4],[2,6],[2,7],[3,6],[3,7]];
+//
 var myForceMag = -1;
 var myForceDir = 'y';
 //Change the bucket in css!!!
@@ -72,6 +83,10 @@ var myClickCounter = 0;
 //for BC
 var mySnap;
 var dx;
+var myUserScore = 0;
+var myUserScoreTotal = 0;
+var myMaterialCounter;
+var myFirstLogin = 0;
 //
 //
 //
@@ -421,12 +436,9 @@ function myCalculateFunction (myBoolean, myBoolean2){
     myDisp = [];
     myDisp = mySolver(nelx,nely,x,penal,myKE,U);
 
-
-
     //Calculate compliance
     complainceFunc(F,myDisp);
     
-
     //  exagerate the displacement
     myDisp = myDisp.map( function(item) { return item * myExagerationFactor; } );
     // first get each two X,Y pairs together
@@ -435,18 +447,13 @@ function myCalculateFunction (myBoolean, myBoolean2){
     myDispArray2 = List2Array(myDispArray , div + 1, div + 1);
     //now myDispArray2 can be used for moving the force svg
 
-
-
-    //
     //get disp from vector
     myUList = XYtoVectorFunc(myDisp);
-
 
     myMaxDisp = _.max(myUList) ;
     //console.log(myMaxDisp);
     
     //populate myDispColorArray 
-    
     VisDispFunc(myDisp);
     //This will populate myECoor - public variable
     myECoor = [];
@@ -460,15 +467,11 @@ function myCalculateFunction (myBoolean, myBoolean2){
     //Do somthing with strain
     VisVMFunc(myElementVMStress);
 
-    //
-
-
     myScores.push([myMaxDisp,myMaxVM,parseFloat(myCompliance)]);
-    console.log(myScores);
     //Here myGuide, myGuide1 and myGuide2 will all be set
     //calculateScore();
-    //
-
+    //this will populate myUserScore
+    calculateScore2();
 
     NProgress.done();
     //get time again
@@ -486,10 +489,10 @@ function myCalculateFunction (myBoolean, myBoolean2){
         //console.log(myDensityMatrixContainer);
 
         //change options in stateMenu
-        addOption();
+       // addOption();
     }
 
-
+    /*
     //Now adjust select to last one in list
     //if automatically running
     if( myBoolean2){
@@ -499,9 +502,12 @@ function myCalculateFunction (myBoolean, myBoolean2){
     }
     //if not automatically running and I want to choose whatever I want
     else{
-
         // do nothing
     }
+    */
+    
+    //now make sure to redraw
+
 
 
 
@@ -589,3 +595,107 @@ function calculateScore(){
 
 }
 
+function calculateScore2(){
+    //only it is not the first time this runs (it has two items or more)
+    if (myScores.length > 1){
+        //for Compliance
+        var myComplianceNew = 100*(myScores[myScores.length-1][2]-myScores[myScores.length-2][2])/myScores[myScores.length-2][2];
+        //for Material its myMaterialCounter
+        var xx = myMaterialCounter;
+        var yy = myComplianceNew;
+        myUserScore = -0.1389 + -1.354 * xx + -0.1146 * yy;
+        myUserScore = Math.round(myUserScore * 10) / 10
+        console.log("materialcounter",myMaterialCounter);
+        console.log("compliance", myComplianceNew);
+        console.log("score",myUserScore);
+    }
+    else{
+        myUserScore = 0;
+    }
+    //myUserScore is the final output per round
+        myUserScoreTotal += myUserScore;
+        console.log("score total", myUserScoreTotal );
+        /*
+        X is material
+        y is compliance
+     Linear model Poly11:
+     sf(x,y) = p00 + p10*x + p01*y
+     Coefficients (with 95% confidence bounds):
+       p00 =     -0.1389  (-0.4491, 0.1713)
+       p10 =      -1.354  (-1.544, -1.164)
+       p01 =     -0.1146  (-0.1336, -0.09559)
+
+       */
+
+}
+
+
+function myCalculateFunctionWithoutScore (myBoolean, myBoolean2){
+    //Get time
+    var myTime1 = new Date().getTime();
+    // get KE
+    var myKE = KE(E,nu);
+    //  get x
+    var x = elementDensityFunc(myDensityMatrixContainer[myCurrentStateIndex],div);
+    
+    // solver
+    myDisp = [];
+    myDisp = mySolver(nelx,nely,x,penal,myKE,U);
+
+    //Calculate compliance
+    complainceFunc(F,myDisp);
+    
+    //  exagerate the displacement
+    myDisp = myDisp.map( function(item) { return item * myExagerationFactor; } );
+    // first get each two X,Y pairs together
+    myDispArray = List2Array2(myDisp ,2);
+    // then out each pair in div by div 2d array
+    myDispArray2 = List2Array(myDispArray , div + 1, div + 1);
+    //now myDispArray2 can be used for moving the force svg
+
+    //get disp from vector
+    myUList = XYtoVectorFunc(myDisp);
+
+    myMaxDisp = _.max(myUList) ;
+    //console.log(myMaxDisp);
+    
+    //populate myDispColorArray 
+    VisDispFunc(myDisp);
+    //This will populate myECoor - public variable
+    myECoor = [];
+    myECoorFunc(nelx,nely,myNewCanvas);
+    //This will populate myElementVMStress
+    myElementVMStress = [];
+    myStrainFunc();
+    //console.log(myElementVMStress);
+    myMaxVM = _.max(myElementVMStress);
+    
+    //Do somthing with strain
+    VisVMFunc(myElementVMStress);
+
+    myScores.push([myMaxDisp,myMaxVM,parseFloat(myCompliance)]);
+    //Here myGuide, myGuide1 and myGuide2 will all be set
+    //calculateScore();
+    //this will populate myUserScore
+    //calculateScore2();
+
+    NProgress.done();
+    //get time again
+    var myTime2 = new Date().getTime();
+    var myDuration = (myTime2 - myTime1)/1000;
+
+    console.log("Time to compute " , myDuration , "seconds");
+    myPrompt.value = "Done!";
+
+    //only if calculate button clicked
+    if(myBoolean){
+
+        //Add to container
+        myDensityMatrixContainer.push(x);
+        //console.log(myDensityMatrixContainer);
+
+        //change options in stateMenu
+       // addOption();
+    }
+
+}

@@ -18,14 +18,18 @@ var myNewPer = [3];
 var myBucketValue = 0.0;
 var myOriginalPer = 0.0;
 var myUserName;
-var myPlayer1temp;
-var myPlayer2temp;
+//var myPlayer1temp;
+//var myPlayer2temp;
+var me;
+var other;
+var otherTemp;
 //
 //when GO! clicked
 //
 mySubmit.onmousedown = function (e) {
     //get userName
     loginButtonClicked();
+
 }
 
 
@@ -37,10 +41,11 @@ socket.on("loggedin", function(data){
     ////////////////////
     //remover myUserInfo
     myUserInfo.parentNode.removeChild(myUserInfo);
-    //things to run whe user hits go
+    //things to run when user hits go
     // ask server for first X matrix
     socket.emit('getFirstX',{});
     console.log("requesting first x from server")
+    console.log("myname" , me.name);
     // when we get a reply, set it
     socket.on('firstX', function(data){
         console.log("received first X");
@@ -56,7 +61,6 @@ socket.on("loggedin", function(data){
         var myBoolean = true;
         myCalculateFunction(myBoolean,myBoolean);
     });
-
 });
 
 
@@ -71,6 +75,7 @@ socket.on("needToLogin", function(data){
 });
 
 
+/*
 socket.on("userJoined", function(data){
     // If I am the first player
     if (data.length == 1){
@@ -83,20 +88,35 @@ socket.on("userJoined", function(data){
         myPlayer2temp  = data[1].name;
     }
 });
+*/
+
+var playing=false;
+
+socket.on("paired", function(data) {
+    other=new User(data.name, data.id);
+    console.log("other",other);
+    playing=true;
+});
 
 
 
-
-
+socket.on("scoreChanged", function(data) {
+    if (data.id==me.id) {
+        me.score=data.score;
+    }
+    else if (data.id==other.id) {
+        other.score=data.score;
+    }
+});
 /////////////////////
 //users
 ///////////////////
 
-var me=null;
 
 function User(name, id, color) {
     this.name=name;
-    this.id=id;
+    this.id=id
+    this.score=0;
 }
 
 function loginButtonClicked() {
@@ -104,6 +124,7 @@ function loginButtonClicked() {
     myUserPass = document.getElementsByName("myUserPass")[0].value;
     login(myUserName, myUserPass);
     console.log(" user info emitted fro client side");
+    myFirstLogin = 1;
 }
 
 function login(name, password) {

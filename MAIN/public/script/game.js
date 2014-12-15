@@ -1,4 +1,3 @@
-var sika;
 
 
 function myGameFunction() {
@@ -92,28 +91,36 @@ function myGameFunction() {
     var myBlockCanvas = document.getElementById('myBlockCanvas');
 
 
-
     //////////////////////
     //players and player names
     //////////////////////
     myPlayer1 = document.getElementById("myPlayer1");  
     myPlayer2 = document.getElementById("myPlayer2");
-    myPlayer1.value =  myPlayer1temp;
-    myPlayer2.value =  myPlayer2temp;
-    
+    //this will always be me
+    myPlayer1.value =  me.name;
+    //second one will always be the other
+    if(other){
+        myPlayer2.value =  other.name;
+    }
+    else{
+        myPlayer2.value =  "not in yet";  
+    }
 
+    //when other player logs in
     socket.on("update", function(data){
-        myPlayer1.value =  myPlayer1temp;
-        myPlayer2.value =  myPlayer2temp;
+        myPlayer2.value =  other.name;
     });
+
+
 
     ///////////////////////
     //Player scores
     //////////////////////
     myPlayer1Score = document.getElementById("myPlayer1Score");
     myPlayer2Score = document.getElementById("myPlayer2Score");
-    myPlayer1Score.value = "12";
-    myPlayer2Score.value = "20";
+    myPlayer1Score.value = 0;
+    myPlayer2Score.value = 0;
+
 
     
 
@@ -248,10 +255,22 @@ function myGameFunction() {
        // console.log(myMatrix);
             //1_draw all cells with material
             myDensityMatrixContainer[myCurrentStateIndex] = myMatrix;
-            drawCellsFunc(myMatrix);
-            //2_Draw grid
-            render();
-            //
+            
+            if(myMeshFlag){
+                drawMeshFunc();
+            }
+            else if(myDispFlag){
+                drawDispFunc();
+            }
+            else if(myStressFlag){
+                drawVMFunc();
+            }
+            else{
+                drawCellsFunc(myMatrix);
+                //2_Draw grid
+                render();
+                //
+            }   
             adjustDensityAndBar();
 
        // console.log("client got newX");
@@ -272,6 +291,11 @@ function myGameFunction() {
         console.log('you Lose');
         winFunc(false);
     });
+    socket.on('reveal', function(data){
+        console.log('optimum revealed');
+        myWinLoseCanvas.width = 0;
+        myWinLoseCanvas.height = 0;
+    });
 
 
     //////////////////////////////////////
@@ -281,11 +305,66 @@ function myGameFunction() {
     socket.on('block', function(data){
         console.log('you have been blocked');
         block();
+        //change values
+
+        if(data.id == me.id){
+            myPlayer1Score.value = data.score;
+        }
+        else {
+            myPlayer2Score.value = data.score;
+        }
+
+        if(myFirstLogin == 1){
+            myPlayer2Score.value = "0";
+            myFirstLogin = 2;
+        }
+        
+
     });
 
+
     socket.on('allow', function(data){
+        
+        //need to recalculate here
+        myCalculateFunctionWithoutScore (true, true);
+
+        //to redraw immedialtely after solving
+        if(myMeshFlag){
+            drawMeshFunc();
+        }
+        else if(myDispFlag){
+            drawDispFunc();
+        }
+        else if(myStressFlag){
+            drawVMFunc();
+        }
+
+        console.log("recalculated you fucker");
+
+        //then allow
+
         console.log('you can play now');
         allow();
+        //changeValues
+        
+        if(data.id == me.id){
+            myPlayer1Score.value = data.score;
+        }
+        else {
+            myPlayer2Score.value = data.score;
+        }
+
+        //set the counter to 0
+        myMaterialCounter = 0;
+
+        if(myFirstLogin == 1){
+            myPlayer2Score.value = "0";
+            $('#myNewCanvas').trigger('click');
+            myFirstLogin = 2;
+        }
+        
+
+
     });
 
     
@@ -387,6 +466,10 @@ function myGameFunction() {
         /// get index from mouse position
         xIndex = Math.round((mx - tileWidth * 0.5) / tileWidth),
         yIndex = Math.round((my - tileHeight * 0.5) / tileHeight);
+        //
+        //
+        var addflag = false;
+        var subflag = false;
         //////////////////////////////
         //CASE ADD INC - myDensityMatrix manipulation only
         // left 
@@ -406,6 +489,10 @@ function myGameFunction() {
             // fill the myDensityMatrix with new val
             myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ), myNewVal); 
             myPrompt.value = "Material added.";
+            //
+            addflag = true;
+            subflag = false;
+
         }
         //////////////////////////////
         //CASE SUB INC - myDensityMatrix manipulation only
@@ -426,6 +513,9 @@ function myGameFunction() {
             // fill the myDensityMatrix with new val
             myDensityMatrixContainer[myCurrentStateIndex] = math.subset(myDensityMatrixContainer[myCurrentStateIndex], math.index(yIndex, xIndex ), myNewVal);
             myPrompt.value = "Material subtracted."; 
+            //
+            addflag = false;
+            subflag = true;
         }
 
         /////////////////////////////
@@ -446,12 +536,21 @@ function myGameFunction() {
         ///////////////////////////
         if(myTemp._data.equals(myDensityMatrixContainer[myCurrentStateIndex]._data) == false && myClickCounter < 4) {
             myClickCounter+=1;
-            //console.log(myClickCounter);
+            if(addflag){
+                //add 0.5 to myMaterialCounter
+                myMaterialCounter += 0.5
+            }
+            else if(subflag){
+                myMaterialCounter -= 0.5
+            }
         }
+
+
         //if number of clicks exceeded
         if(myClickCounter == 4){
             myClickCounter = 0;
-            socket.emit("outOfClicks",{});
+            //
+            console.log("mymaterialcounter", myMaterialCounter);
             //////////////
             //display calculation
             NProgress.configure({ parent: '#myGame' });
@@ -474,12 +573,11 @@ function myGameFunction() {
             else if(myStressFlag){
                 drawVMFunc();
             }
-            //////////////
+            // Now emit
+            socket.emit("outOfClicks", {score:myUserScore, id:me.id} );
         }
 
     }
-    
-
 
     /////////////////////////////////////////////////
     /////////////////////////////////////////////////
@@ -952,7 +1050,7 @@ function adjustDensityAndBar(){
             // Need some function here to calculate myScore
             //
 
-            socket.emit("targertDensityReached",{data:myScore});
+            socket.emit("targertDensityReached",{data:myUserScoreTotal});
             //console.log("target density reached")
 
             //set the bucket to target density so we dont get decimal places - very clean!

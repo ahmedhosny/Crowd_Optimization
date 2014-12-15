@@ -16,11 +16,11 @@ var myXMatrix = [[1.0,1.0,1.0,1.0,1.0,1.0,1.0],
                   [1.0,1.0,1.0,1.0,1.0,1.0,1.0],
                   [1.0,1.0,1.0,1.0,1.0,1.0,1.0]
                   ];
-                 
-//var myXMatrix = [[1,0.6],[1,0.6]];
-                 
-app.use(express.static(__dirname + '/public'));
 
+                
+//var myXMatrix = [[1,0.6],[1,0.6]];
+
+app.use(express.static(__dirname + '/public'));
 
 
 var server = app.listen(process.env.PORT || 1337, function() {
@@ -46,22 +46,21 @@ io.sockets.on('connection', function (socket) {
   //console.log(findClientsSocket());
 
 
-
   //////////////////////////////////////////////////////////////
-
 
   /////////We need to emit the first x matrix to the socket that just connected
   socket.on('getFirstX', function(data){   
           socket.emit('firstX', myXMatrix);
           console.log("server emited firstX");
-          //lets emit here allow and block for the first time
-          io.sockets.connected[clientIDs[0]].emit("allow", {});
+          if (clientIDs.length == 1){
+            //lets emit here allow and block for the first time
+            io.sockets.connected[clientIDs[0]].emit("allow", {});
+          }
           //and if the second player joins
-          if(clientIDs.length > 1){
+          else{
              io.sockets.connected[clientIDs[1]].emit("block", {});
           }
     });
-
 
 
 
@@ -73,18 +72,19 @@ io.sockets.on('connection', function (socket) {
           myXMatrix = data.data._data;
           console.log(myXMatrix);
           //socket.broadcast.emit will send the message to all the other clients except the newly created connection
-          io.sockets.emit('newX', myXMatrix);
+          socket.broadcast.emit('newX', myXMatrix);
           console.log("server emited newX to all");
     });
 
     //when a user runs out of clicks
-    socket.on('outOfClicks', function(){   
+    socket.on('outOfClicks', function(data){   
           console.log("a user has run out of clicks");
           //send message to that socket only
-          socket.emit('block',{});
+          socket.emit('block',data);
           //send to the other player
-          socket.broadcast.emit('allow',{});
+          socket.broadcast.emit('allow',data);
     });
+
 
     //When the target density is reached
     socket.on('targertDensityReached', function(data){
@@ -95,7 +95,7 @@ io.sockets.on('connection', function (socket) {
           clientScore.push({id:socket.id, score:data.data})
           // avoid duplicates
           clientScore = us.uniq(clientScore, function(item, key, id) { return item.id; })
-
+          console.log("clientscorelist", clientScore);
           // now we need to make sure that all sockets have logged in their scores
           // only if ClientScore.length is the same as clientCount
 
@@ -115,6 +115,11 @@ io.sockets.on('connection', function (socket) {
                 }    
             }
           }
+          //Send reveal after some time
+          setTimeout(function (){
+            io.sockets.emit('reveal',{});
+          }, 10000); 
+
     });
 
     //USERS
@@ -137,14 +142,31 @@ io.sockets.on('connection', function (socket) {
       }
     }
 
-
     else {
       u=new User(data.name, data.password, socket);
       var userpacket={name:u.name, id:u.id};
       socket.user=u;
+
+      socket.emit("loggedin", userpacket); 
+  
+
+      var other = FindPair();
+
+      //this is for the second player
+      if (other) {
+        other.pairedto=u;
+        u.pairedto=other;
+        //Lets emit to u
+        socket.emit("paired", {name:other.name, id:other.id});
+        //lets emit to other
+        socket.broadcast.emit("paired", {name:u.name, id:u.id});
+        console.log("me",u.name, u.id);
+        console.log("other",other.name, other.id);
+      }
+
       // all users will be new
       userPacketList.push(userpacket);
-      socket.emit("loggedin", userpacket); 
+      
       //io.sockets.emit("userJoined", userpacket);   
       io.sockets.emit("userJoined", userPacketList) ;     
       //socket.broadcast.emit("userJoined", userpacket);
@@ -155,10 +177,18 @@ io.sockets.on('connection', function (socket) {
   });
 
 
+
   //when a client disconnects this message is received
   socket.on('disconnect', function(){
       if (socket.user) {
-        var u=socket.user;      
+        var u=socket.user;   
+        /*
+        if (u.pairedto) {
+          u.pairedto.socket.emit("otherDisconnected", {});
+          u.pairedto.pairedto=null;
+          u.pairedto=null;
+        }   
+        */
         u.socket=null;
         var userpacket={id:u.id};
         socket.broadcast.emit("userLeft", userpacket);
@@ -178,12 +208,33 @@ var usersById={};
 var usersByName={};
 
 
+/*
+function FindPair() {
+  for(var i in usersById) {
+    if (!usersById[i].pairedto) return usersById[i];
+  }
+  return null;
+}
+*/
+function FindPair(){
+  if (clientIDs.length == 2){
+    return usersById[1];
+    console.log("found pair");
+  }
+  else{
+    return null;
+  }
+}
+
 function User(name, password, color, socket) {
     this.name=name;
     this.password=password;
     this.id=userid;
     this.color=color;
     this.socket=socket;
+    this.score=0;
+
+    this.pairedto=null;
 
     usersById[this.id]=this;
     usersByName[this.name]=this;
@@ -213,5 +264,4 @@ function findClientsSocket(roomId, namespace) {
     }
     return res;
 }
-
 
